@@ -15,27 +15,60 @@ h1 {
     transform: translateX(-50%);
     font-size: 5rem;
     color: rgb(17, 17, 17);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.oddWord {
+    color: rgb(255, 255, 255);
 }
 
 .chooselobby-mask {
     position: absolute;
     top: 3%;              /* Adjust this value to move it up/down */
-    left: max(10%, 105px);
-    transform: translateX(-50%);
+    left: 5%;
     width: 200px;
     height: 200px;
     object-fit: contain;
 }
 
-#StartBt
-{
+.chooselobby-container{
     position: absolute;
-    top: 80%; /* 10% from top of the screen */
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 3rem;
-    color: white;
+    top: 40%;              /* Adjust this value to move it up/down */
+    left: 5%;
+    width: 200px;
+    height: 270px;
+    object-fit: contain;
+    padding-left: 10px;
     border: 5px solid black;
+    background-color: white;
+    border-radius: 10px;
+
+        /* Grey base color */
+    background-color: #d3d3d3;
+
+    /* Repeating angled question marks */
+    background-image: url("data:image/svg+xml,\<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'>\<text x='2' y='35' font-size='40' font-family='Georgia' fill='black' opacity='0.' transform='rotate(20 30 30)'>?</text>\</svg>");
+    background-repeat: repeat;
+}
+
+button{
+    position: absolute;
+    font-size: 1.8rem;
+    color: rgb(255, 255, 255,);
+    border: 3px solid black;
     border-radius: 30px;
-    background-color: black;
+    background-color: rgba(82, 72, 72, 0.95);
+    width: 170px;
+    height: 100px;
+}
+
+#hostLobby-button{
+    top: 8%;
+    left: 10%;
+}
+
+#joinLobby-button{
+    top: 55%;
+    left: 10%;
+
 }
