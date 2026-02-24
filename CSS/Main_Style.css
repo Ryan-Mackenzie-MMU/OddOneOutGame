@@ -15,12 +15,18 @@ h1 {
     transform: translateX(-50%);
     font-size: 5rem;
     color: rgb(17, 17, 17);
-    text-decoration: line-through;
+
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.title-image {
+.oddWord {
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+.mask {
     position: absolute;
-    top: 18%;
+    top: 17%;
     left: 50%;
     transform: translateX(-50%);
     width: 700px;
@@ -31,7 +37,7 @@ h1 {
 #StartBt
 {
     position: absolute;
-    top: 80%;
+    top: 85%;
     left: 50%;
     transform: translateX(-50%);
     font-size: 3rem;
