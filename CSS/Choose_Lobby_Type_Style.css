@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(140deg, rgb(152, 3, 3) 0%, rgb(207, 15, 15) 55%, rgb(233, 76, 37) 100%);
+    font-family: Arial, sans-serif;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    position: relative;
+}
+
+h1 {
+    position: absolute;
+    top: 5%; /* 10% from top of the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 5rem;
+    color: rgb(17, 17, 17);
+}
+
+.chooselobby-mask {
+    position: absolute;
+    top: 3%;              /* Adjust this value to move it up/down */
+    left: max(10%, 105px);
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+#StartBt
+{
+    position: absolute;
+    top: 80%; /* 10% from top of the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3rem;
+    color: white;
+    border: 5px solid black;
+    border-radius: 30px;
+    background-color: black;
+}
