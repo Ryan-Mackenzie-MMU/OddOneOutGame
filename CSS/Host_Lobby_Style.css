@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(140deg, rgb(152, 3, 3) 0%, rgb(207, 15, 15) 55%, rgb(233, 76, 37) 100%);
+    font-family: Arial, sans-serif;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    position: relative;
+}
+
+h1 {
+    position: absolute;
+    top: 5%; /* 10% from top of the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 5rem;
+    color: rgb(17, 17, 17);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#gameCode{
+    font-size: 4rem;
+    color: white;
+}
+
+.chooselobby-mask {
+    position: absolute;
+    top: 3%;              /* Adjust this value to move it up/down */
+    left: 5%;
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.gameSettings-container{
+    position: absolute;
+    top: 40%;              /* Adjust this value to move it up/down */
+    left: 5%;
+    width: 350px;
+    height: 270px;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    background-color: white;
+    border-radius: 10px;
+}
+
+#settingsText{
+    color: rgb(255, 255, 255);
+    position: absolute;
+    top: -95px;
+    font-size: 3rem;
+    width: 100%;
+}
+
+button{
+    position: absolute;
+    font-size: 1.8rem;
+    color: rgb(255, 255, 255,);
+    border: 3px solid black;
+    border-radius: 30px;
+    background-color: rgba(82, 72, 72, 0.95);
+    width: 170px;
+    height: 100px;
+}
+
+#hostLobby-button{
+    top: 8%;
+    left: 10%;
+}
+
+#joinLobby-button{
+    top: 55%;
+    left: 10%;
+
+}
+
+.playersInLobby-container{
+    position: absolute;
+    top: 40%;              /* Adjust this value to move it up/down */
+    left: 40%;
+    width: 300px;
+    height: 500px;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    color: black;
+    border-radius: 10px;
+
+        /* Grey base color */
+    background-color: #d3d3d3;
+}
+
+#startGame-button{
+    position: absolute;
+    top: 105%;
+    left: 25%;
+    font-size: 1.8rem;
+    color: rgb(255, 255, 255);
+    border: 3px solid black;
+    border-radius: 30px;
+    background-color: rgba(82, 72, 72, 0.95);
+    width: 170px;
+    height: 100px;
+}
+
+.addPlayer-container{
+    position: absolute;
+    top: 40%;              /* Adjust this value to move it up/down */
+    left: 70%;
+    width: 300px;
+    height: 270px;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    color: black;
+    border-radius: 10px;
+
+        /* Grey base color */
+    background-color: #d3d3d3;
+}
+
+#addPlayerText{
+    color: white;
+    position: absolute;
+    top: -95px;
+    font-size: 3rem;
+    width: 100%;
+}
