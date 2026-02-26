@@ -72,3 +72,26 @@ button{
     left: 10%;
 
 }
+
+.leaderboard-container{
+    position: absolute;
+    top: 40%;              /* Adjust this value to move it up/down */
+    left: 70%;
+    width: 300px;
+    height: 270px;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    color: black;
+    border-radius: 10px;
+
+        /* Grey base color */
+    background-color: #d3d3d3;
+}
+
+#leaderboardText{
+    color: white;
+    position: absolute;
+    top: -90px;
+    font-size: 3rem;
+}
