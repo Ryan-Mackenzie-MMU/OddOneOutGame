@@ -43,9 +43,6 @@ h1 {
     background-color: white;
     border-radius: 10px;
 
-        /* Grey base color */
-    background-color: #d3d3d3;
-
     /* Repeating angled question marks */
     background-image: url("data:image/svg+xml,\<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'>\<text x='2' y='35' font-size='40' font-family='Georgia' fill='black' opacity='0.' transform='rotate(20 30 30)'>?</text>\</svg>");
     background-repeat: repeat;
@@ -85,8 +82,7 @@ button{
     color: black;
     border-radius: 10px;
 
-        /* Grey base color */
-    background-color: #d3d3d3;
+    background-color: white;
 }
 
 #leaderboardText{

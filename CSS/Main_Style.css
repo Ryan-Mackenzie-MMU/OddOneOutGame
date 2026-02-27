@@ -13,7 +13,7 @@ h1 {
     top: 5%; /* 5% from top of the screen */
     left: 50%; /* 50% from left of the screen */
     transform: translateX(-50%);
-    font-size: 5rem;
+    font-size: 9.4vmin;
     color: rgb(17, 17, 17);
 
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -34,11 +34,11 @@ h1 {
 
 .mask {
     position: absolute;
-    top: 17%;
+    top: 28%;
     left: 50%;
     transform: translateX(-50%);
-    width: 700px;
-    height: 700px;
+    width: 45%;
+    height: 45%;
     object-fit: contain;
 }
 
@@ -48,7 +48,7 @@ h1 {
     top: 85%;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 3rem;
+    font-size: 5.64vmin;
     background-color: transparent;
     border: none;
     text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
