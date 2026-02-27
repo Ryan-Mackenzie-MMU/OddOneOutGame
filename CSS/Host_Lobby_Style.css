@@ -47,15 +47,14 @@ h1 {
 #settingsText{
     color: rgb(255, 255, 255);
     position: absolute;
-    top: -95px;
-    top: -25%;
-    font-size: 3vmin;
+    top: -26%;
+    font-size: 3.5vmin;
     width: 100%;
 }
 
 button{
     position: absolute;
-    font-size: 1.8vmin;
+    font-size: 2.5vmin;
     color: rgb(255, 255, 255,);
     border: 3px solid black;
     border-radius: 30px;
@@ -92,8 +91,8 @@ button{
 #playerLobbyText{
     color: white;
     position: absolute;
-    top: -15%;
-    font-size: 3vmin;
+    top: -16%;
+    font-size: 3.5vmin;
     width: 100%;
 }
 
@@ -126,7 +125,7 @@ button{
 #addPlayerText{
     color: white;
     position: absolute;
-    top: -25%;
-    font-size: 3vmin;
+    top: -26%;
+    font-size: 3.5vmin;
     width: 100%;
 }
