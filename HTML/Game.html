@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odd One Out - Game</title>
+<link rel="stylesheet" href="../CSS/Game_Style.css">
+</head>
+
+<body>
+
+<div class="game-box">
+
+    <h1 id="phaseTitle">Pass the Device</h1>
+    <h2 id="playerTurn">Player 1</h2>
+
+    <div id="roleReveal">
+        <p>Click reveal to see your role</p>
+        <button onclick="revealRole()">Reveal</button>
+    </div>
+
+    <div id="roleText" class="hidden"></div>
+    <button id="nextButton" class="hidden" onclick="nextPlayer()">Next</button>
+
+    <div id="hintPhase" class="hidden">
+        <h2>Give your hint out loud</h2>
+        <button onclick="nextHint()">Next Player</button>
+    </div>
+
+    <div id="votingPhase" class="hidden">
+        <h2>Vote for the Impostor</h2>
+        <div class="player-list" id="voteButtons"></div>
+    </div>
+
+    <div id="resultPhase" class="hidden">
+        <h2 id="resultText"></h2>
+        <button onclick="restartGame()">Play Again</button>
+    </div>
+
+</div>
+
+
+<script src="../JS/Game_Script.js"></script>
+</body>
+</html>
