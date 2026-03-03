@@ -13,9 +13,19 @@ h1 {
     top: 5%; /* 10% from top of the screen */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 8vmin;
     color: rgb(17, 17, 17);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.title-container {
+    position: absolute;
+    top: 5%; /* 10% from top of the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgb(17, 17, 17);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    width: 150%;
+    font-size: 4vmin;
 }
 
 #gameCode{
@@ -24,10 +34,10 @@ h1 {
 
 .chooselobby-mask {
     position: absolute;
-    top: 3%;              /* Adjust this value to move it up/down */
+    top: 0%;
     left: 5%;
-    width: 10%;
-    height: 21%;
+    width: 13%;
+    height: 30%;
     object-fit: contain;
 }
 
@@ -49,7 +59,7 @@ h1 {
     position: absolute;
     top: -26%;
     font-size: 3.5vmin;
-    width: 100%;
+    width: 150%;
 }
 
 button{
@@ -77,9 +87,9 @@ button{
 .playersInLobby-container{
     position: absolute;
     top: 40%;              /* Adjust this value to move it up/down */
-    left: 40%;
-    width: 15.8%;
-    height: 46%;
+    left: 35%;
+    width: 30%;
+    height: 35%;
     object-fit: contain;
     padding-left: 10px;
     border: 5px solid black;
@@ -91,9 +101,9 @@ button{
 #playerLobbyText{
     color: white;
     position: absolute;
-    top: -16%;
+    top: -20%;
     font-size: 3.5vmin;
-    width: 100%;
+    width: 150%;
 }
 
 #startGame-button{
