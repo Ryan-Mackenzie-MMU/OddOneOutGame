@@ -1,7 +1,8 @@
 body {
     margin: 0;
     height: 100vh;
-    background: linear-gradient(140deg, rgb(152, 3, 3) 0%, rgb(207, 15, 15) 55%, rgb(233, 76, 37) 100%);
+        background: linear-gradient(140deg, rgb(152, 3, 3) 0%, rgb(207, 15, 15) 50%, rgb(233, 76, 37) 100%);
+
     font-family: Arial, sans-serif;
     color: rgb(255, 255, 255);
     text-align: center;
