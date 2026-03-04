@@ -9,6 +9,10 @@
 
 <body>
 
+<a href="../index.html">
+    <img src="../Images/Impostor_Mask.png" alt="Impostor Mask" class="chooselobby-mask">
+</a>
+
 <div class="game-box">
 
     <h1 id="phaseTitle">Pass the Device</h1>
@@ -22,8 +26,18 @@
     <div id="roleText" class="hidden"></div>
     <button id="nextButton" class="hidden" onclick="nextPlayer()">Next</button>
 
+    <!-- Hint Phase -->
     <div id="hintPhase" class="hidden">
-        <h2>Give your hint out loud</h2>
+        <h2>Type your hint below</h2>
+
+        <form id="hintForm">
+            <label for="hint">Enter hint:</label>
+            <input type="text" id="hint" name="hint">
+            <br><br>
+
+            <input type="submit" value="Submit">
+        </form>
+
         <button onclick="nextHint()">Next Player</button>
     </div>
 
@@ -38,7 +52,6 @@
     </div>
 
 </div>
-
 
 <script src="../JS/Game_Script.js"></script>
 </body>
