@@ -1,0 +1,75 @@
+.playersInLobby-container{
+    position: absolute;
+    top: 40%;              /* Adjust this value to move it up/down */
+    left: 35%;
+    width: 30%;
+    height: 35%;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    color: black;
+    border-radius: 10px;
+    background-color: white;
+}
+
+#playerLobbyText{
+    color: white;
+    position: absolute;
+    top: -20%;
+    font-size: 3.5vmin;
+    width: 150%;
+}
+
+#usernameLbl{
+}
+
+#playerName{
+    position: absolute;
+    top: 9%;
+    left: 5%;
+    width: 60%;
+    border-radius: 9px;
+    border: 2px solid black;
+}
+
+#addPlayer{
+    position: absolute;
+    top: 9%;
+    left: 70%;
+    width: 27%;
+}
+
+#playersJoined{
+    position: absolute;
+    top: 20%;              /* Adjust this value to move it up/down */
+    left: 5%;
+    width: 70%;
+    height: 69%;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    color: black;
+    border-radius: 10px;
+    background-color: white;
+    padding: 10px;
+}
+
+hr {
+    width: 100%;
+    margin: 10px 0;   /* space above and below */
+    border: none;
+    border-top: 2px solid black; /* clean line */
+}
+
+#startGame-button{
+    position: absolute;
+    top: 78%;
+    left: 39%;
+    color: rgb(255, 255, 255);
+    border: 3px solid black;
+    border-radius: 30px;
+    background-color: rgba(82, 72, 72, 0.95);
+    width: 25%;
+    height: 8%;
+    font-size: 3vmin;
+}

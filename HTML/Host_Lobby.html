@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Odd One Out</title>
     <link rel="stylesheet" href="../CSS/Host_Lobby_Style.css">
+    <link rel="stylesheet" href="../CSS/Host_Lobby/Game_Settings_Style.css">
+    <link rel="stylesheet" href="../CSS/Host_Lobby/Lobby_Style.css">
 </head>
 <body>
 
@@ -20,14 +22,75 @@
 
     <div class="gameSettings-container">
         <h1 id="settingsText">Game Settings</h1>
-        <button id="hostLobby-button">Host Lobby</button>
-        <button id="joinLobby-button">Join Lobby</button>
+
+        <div id="PrivacyBox">
+            <button class="chosen" id="PublicBt">Public</button>
+            <button class="notChosen" id="PrivateBt">Private</button>
+        </div>
+
+        <div id="ThemeBox">
+            <label for="Theme" id="themeLbl">Theme:</label>
+
+            <select name="Theme" id="themeSel">
+                <option value="sport">Sport</option>
+                <option value="food">Food</option>
+                <option value="games">Games</option>
+                <option value="films">Films</option>
+                <option value="celebrities">Celebrities</option>
+                <option value="music">Music</option>
+            </select>
+        </div>
+
+        <div id="LanguageBox">
+            <label for="Language" id="languageLbl">Language:</label>
+
+            <select name="Langauge" id="languageSel">
+                <option value="english">English</option>
+            </select>
+        </div>
+
+        <div id="RoomPrivacyBox">
+            <label for="RoomPrivacy" id="roomPrivacyLbl">Room Privacy:</label>
+
+            <select name="RoomPrivacy" id="roomPrivacySel">
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+            </select>
+        </div>
+
+        <div id="RoundsBox">
+            <label for="Rounds" id="roundsLbl">Rounds:</label>
+
+            <select name="Rounds" id="roundsSel">
+                <option value="1round">1 round</option>
+                <option value="2rounds">2 rounds</option>
+                <option value="3rounds">3 rounds</option>
+                <option value="5rounds">5 rounds</option>
+                <option value="10rounds">10 rounds</option>
+            </select>
+        </div>
+
     </div>
 
     <div class="playersInLobby-container">
         <h1 id="playerLobbyText">Lobby</h1>
-        <button id="startGame-button" onclick="location.href='../HTML/Game.html'">Start Game</button>
+
+        <div id="usernameBox">
+        <label for="playerName" id="usernameLbl"></label>
+        <input type="text" id="playerName" name="playerName"><br><br>
+        <input type="submit" id="addPlayer" value="Add Player">
+        </div>
+
+        <div id="playersJoined">
+            Player1
+            <hr>
+            Player4
+        </div>
     </div>
+
+    <button id="startGame-button" onclick="location.href='../HTML/Game.html'">Start Game</button>
+
+<script src="../JS/Host_Lobby_Script.js"></script>
 </body>
 
 </html>
