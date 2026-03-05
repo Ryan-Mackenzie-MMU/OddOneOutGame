@@ -1,13 +1,19 @@
 body {
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
     background: linear-gradient(140deg, rgb(152, 3, 3) 0%, rgb(207, 15, 15) 50%, rgb(233, 76, 37) 100%);
     font-family: Arial, sans-serif;
     color: rgb(255, 255, 255);
     text-align: center;
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-wrap: wrap;   /* prevents collisions */
+    gap: 16px;         /* space between elements */
 }
+
 
 h1 {
     position: absolute;
@@ -26,7 +32,8 @@ h1 {
     color: rgb(17, 17, 17);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     width: 150%;
-    font-size: 4vmin;
+    font-size: clamp(24px, 4vmin, 36px);
+    width: 150%;
 }
 
 #gameCode{

@@ -9,13 +9,15 @@
     border: 5px solid black;
     background-color: white;
     border-radius: 10px;
+    min-width: 150px;
+    min-height: 200px;
 }
 
 #settingsText{
     color: rgb(255, 255, 255);
     position: absolute;
     top: -26%;
-    font-size: 3.5vmin;
+    font-size: clamp(24px, 3.5vmin, 36px);
     width: 150%;
 }
 
@@ -34,17 +36,18 @@
     border-radius: 0px;
 }
 
-#PublicBt{
+#PublicBt, #PrivateBt{
     position: absolute;
     height: 10%;
     width: 50%;
+    border: 2px solid black;
+    cursor: pointer;
+}
+#PublicBt{
     left: 0%;
 }
 
 #PrivateBt{
-    position: absolute;
-    height: 10%;
-    width: 50%;
     right: 0%;
 }
 
@@ -55,7 +58,7 @@ label{
 #ThemeBox{
     position: absolute;
     width: 43%;
-    top: 10%;
+    top: 15%;
     right: 70%;
     height: 50%;
 }
@@ -63,7 +66,7 @@ label{
 #LanguageBox{
     position: absolute;
     width: 43%;
-    top: 10%;
+    top: 15%;
     right: 25%;
     height: 50%;
 }
@@ -71,7 +74,7 @@ label{
 #RoomPrivacyBox{
     position: absolute;
     width: 50%;
-    top: 30%;
+    top: 55%;
     right: 67%;
     height: 50%;
 }
@@ -79,33 +82,27 @@ label{
 #RoundsBox{
     position: absolute;
     width: 50%;
-    top: 30%;
-    right: 15%;
+    top: 55%;
+    right: 22%;
     height: 50%;
 }
 
-#themeLbl, #languageLbl, #roomPrivacyLbl, #roundsLbl{
+label{
     position: absolute;
+    bottom: 90%;
 }
 
-#themeSel, #languageSel, #roomPrivacySel, #roundsSel {
+select{
+    width: 55%;
     position: absolute;
-    top: 11%;
+    top: 14%;
     border-radius: 9px;
     background-color: rgba(209,25,25);
     color: white; /* text color of selected item */
 }
 
-#languageSel, #roomPrivacySel{
-    width: 85%;
-}
 
-#roomPrivacyLbl{
-    width: 100%;
-    left: 44%;
-}
-
-#themeSel option, #languageSel option, #roomPrivacySel option, #roundsSel option {
+option {
     background-color: white;
     color: black;
     border-radius: 9px;
