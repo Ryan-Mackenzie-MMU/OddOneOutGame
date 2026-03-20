@@ -38,7 +38,6 @@
             <input type="submit" value="Submit">
         </form>
 
-        <button onclick="nextHint()">Next Player</button>
     </div>
 
     <div id="votingPhase" class="hidden">
@@ -48,7 +47,9 @@
 
     <div id="resultPhase" class="hidden">
         <h2 id="resultText"></h2>
-        <button onclick="restartGame()">Play Again</button>
+
+        <button id="PlayAgainBt" onclick="restartGame()">Play Again</button>
+        <button id="ToLobbyBt" onclick="location.href='../HTML/Host_Lobby.html'">Back to Lobby</button>
     </div>
 
 </div>

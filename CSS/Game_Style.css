@@ -49,6 +49,16 @@ button:hover {
     transform: scale(1.05);
 }
 
+#PlayAgainBt{
+    position: relative;
+    right: 2%;
+}
+
+#ToLobbyBt{
+    position: relative;
+    left: 2%;
+}
+
 .hidden {
     display: none;
 }
