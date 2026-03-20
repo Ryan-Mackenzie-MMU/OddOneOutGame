@@ -68,3 +68,21 @@ addPlayerBtn.addEventListener("click", () => {
 
 // Initial render
 updatePlayersList();
+
+//Session Storage to be sent to Game_Script.js
+document.getElementById("startGame-button").addEventListener("click", () => {
+    if (players.length < 3) 
+    {
+        alert("Less than 3 players in game lobby - cannot start game");
+        return;
+    }
+    else
+    {
+        // Save the players array in localStorage as a JSON string
+        localStorage.setItem("gamePlayers", JSON.stringify(players));
+
+        // Redirect to game page
+        location.href = '../HTML/Game.html';
+        
+    }
+});

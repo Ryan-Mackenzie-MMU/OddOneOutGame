@@ -1,4 +1,22 @@
+// ---------- PLAYERS ----------
+
+// Get players from Host_Lobby_Script.js
+const storedPlayers = localStorage.getItem("gamePlayers");
+
+let players;
+
+if (storedPlayers) {
+    players = JSON.parse(storedPlayers); // Use lobby players
+} 
+else 
+{
+    // fallback if someone opens Game.html directly
+}
+
+// ---------- GAME DATA ----------
+
 let themes = [["Sport", 0], ["Food", 1], ["Games", 2], ["Films", 3], ["Celebrities", 4], ["Music", 5]];
+
 let words = [
     ["Football", "Basketball", "Cricket", "Tennis", "Swimming"],
     ["Pizza", "Curry", "Steak", "Fish", "Cake"],
@@ -7,10 +25,6 @@ let words = [
     ["Taylor Swift", "The Rock", "Ronaldo", "Beyonce"],
     ["Pop", "Rock", "Jazz", "Rap"]
 ];
-
-let players = ["Player 1", "Player 2", "Player 3", "Player 4"];
-
-// ---------- GAME VARIABLES ----------
 
 let randomTheme;
 let themeIndex;
@@ -21,15 +35,15 @@ let currentPlayer = 0;
 let hintPlayer = 0;
 let votePlayer = 0;
 let votes;
-let hints = []; // <-- NEW: store player hints
+let hints = [];
 
-// ---------- HELPER ----------
+// ---------- HELPERS ----------
 
 function random(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-// ---------- GAME SETUP ----------
+// ---------- SETUP GAME ----------
 
 function setupGame() {
     randomTheme = random(themes);
@@ -46,6 +60,18 @@ function setupGame() {
 
     document.getElementById("phaseTitle").innerText = "Role Reveal Phase";
     document.getElementById("playerTurn").innerText = players[currentPlayer];
+
+    // Reset phases
+    document.getElementById("roleReveal").classList.remove("hidden");
+    document.getElementById("roleText").classList.add("hidden");
+    document.getElementById("nextButton").classList.add("hidden");
+    document.getElementById("hintPhase").classList.add("hidden");
+    document.getElementById("votingPhase").classList.add("hidden");
+    document.getElementById("resultPhase").classList.add("hidden");
+
+    // Clear previous hints display
+    const existingHints = document.getElementById("hintsContainer");
+    if (existingHints) existingHints.remove();
 }
 
 setupGame();
@@ -57,12 +83,13 @@ function revealRole() {
     document.getElementById("roleText").classList.remove("hidden");
     document.getElementById("nextButton").classList.remove("hidden");
 
-    if (currentPlayer === impostorIndex) {
-        document.getElementById("roleText").innerHTML =
-            "<h2>You are the IMPOSTOR</h2><p>Theme: " + randomTheme[0] + "</p>";
-    } else {
-        document.getElementById("roleText").innerHTML =
-            "<h2>Secret Word: " + secretWord + "</h2><p>Theme: " + randomTheme[0] + "</p>";
+    if (currentPlayer === impostorIndex) 
+    {
+        document.getElementById("roleText").innerHTML = "<h2>You are the IMPOSTOR</h2><p>Theme: " + randomTheme[0] + "</p>";
+    }
+    else 
+    {
+        document.getElementById("roleText").innerHTML = "<h2>Secret Word: " + secretWord + "</h2><p>Theme: " + randomTheme[0] + "</p>";
     }
 }
 
@@ -72,10 +99,13 @@ function nextPlayer() {
     document.getElementById("roleText").classList.add("hidden");
     document.getElementById("nextButton").classList.add("hidden");
 
-    if (currentPlayer < players.length) {
+    if (currentPlayer < players.length) 
+    {
         document.getElementById("playerTurn").innerText = players[currentPlayer];
         document.getElementById("roleReveal").classList.remove("hidden");
-    } else {
+    } 
+    else 
+    {
         startHintPhase();
     }
 }
@@ -83,41 +113,75 @@ function nextPlayer() {
 // ---------- HINT PHASE ----------
 
 function startHintPhase() {
-    document.getElementById("phaseTitle").innerText =
-        "Hint Phase (Theme: " + randomTheme[0] + ")";
+    document.getElementById("phaseTitle").innerText = "Hint Phase (Theme: " + randomTheme[0] + ")";
     document.getElementById("playerTurn").innerText = players[hintPlayer];
     document.getElementById("hintPhase").classList.remove("hidden");
 }
 
-// CAPTURE TEXTBOX VALUE
-document.getElementById("hintForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    let hintInput = document.getElementById("hint");
-    let hintText = hintInput.value.trim();
-
-    if (hintText === "") {
-        alert("Please enter a hint!");
-        return;
+// Impostor hint handling
+function handleHintSubmission(hintText) {
+    if (hintPlayer === impostorIndex) 
+    {
+        alert("You are the impostor — try to blend in 😈");
     }
 
     hints.push({
         player: players[hintPlayer],
         hint: hintText
     });
+}
 
-    hintInput.value = ""; // clear box
+// Capture hint form submission
+document.getElementById("hintForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const hintInput = document.getElementById("hint");
+    const hintText = hintInput.value.trim();
+
+    if (hintText === "")
+    {
+        alert("Please enter a hint!");
+        return;
+    }
+
+    handleHintSubmission(hintText);
+    hintInput.value = "";
     nextHint();
 });
 
 function nextHint() {
     hintPlayer++;
 
-    if (hintPlayer < players.length) {
+    if (hintPlayer < players.length) 
+    {
         document.getElementById("playerTurn").innerText = players[hintPlayer];
-    } else {
+    } 
+    else 
+    {
         startVotingPhase();
     }
+}
+
+// ---------- DISPLAY HINTS ----------
+
+function displayHints() {
+    const voteContainer = document.getElementById("voteButtons");
+
+    // Remove old hints container
+    const existingHints = document.getElementById("hintsContainer");
+    if (existingHints) existingHints.remove();
+
+    const hintsDiv = document.createElement("div");
+    hintsDiv.id = "hintsContainer";
+    hintsDiv.style.marginBottom = "15px";
+
+    hints.forEach(h => {
+        const p = document.createElement("p");
+        p.innerText = h.player + ": " + h.hint;
+        hintsDiv.appendChild(p);
+    });
+
+    voteContainer.parentNode.insertBefore(hintsDiv, voteContainer);
 }
 
 // ---------- VOTING PHASE ----------
@@ -126,19 +190,26 @@ function startVotingPhase() {
     document.getElementById("phaseTitle").innerText = "Voting Phase";
     document.getElementById("hintPhase").classList.add("hidden");
     document.getElementById("votingPhase").classList.remove("hidden");
+
     votePlayer = 0;
+
+    // Show all hints
+    displayHints();
+
     updateVotingUI();
 }
 
+// Prevent self-voting
 function updateVotingUI() {
-    document.getElementById("playerTurn").innerText =
-        players[votePlayer] + " - Cast your vote";
+    document.getElementById("playerTurn").innerText = players[votePlayer] + " - Cast your vote";
 
-    let voteContainer = document.getElementById("voteButtons");
+    const voteContainer = document.getElementById("voteButtons");
     voteContainer.innerHTML = "";
 
     players.forEach((player, index) => {
-        let btn = document.createElement("button");
+        if (index === votePlayer) return; // Skip self
+
+        const btn = document.createElement("button");
         btn.innerText = player;
         btn.onclick = function() { castVote(index); };
         voteContainer.appendChild(btn);
@@ -149,9 +220,12 @@ function castVote(index) {
     votes[index]++;
     votePlayer++;
 
-    if (votePlayer < players.length) {
+    if (votePlayer < players.length) 
+    {
         updateVotingUI();
-    } else {
+    } 
+    else 
+    {
         document.getElementById("votingPhase").classList.add("hidden");
         showResults();
     }
@@ -160,41 +234,37 @@ function castVote(index) {
 // ---------- RESULT PHASE ----------
 
 function showResults() {
+    let impostor = players[impostorIndex];
+
     document.getElementById("resultPhase").classList.remove("hidden");
 
-    let highestVotes = Math.max(...votes);
-    let tied = [];
+    const highestVotes = Math.max(...votes);
+    const tied = [];
 
     votes.forEach((vote, index) => {
         if (vote === highestVotes) tied.push(index);
     });
 
-    if (tied.length > 1) {
-        document.getElementById("resultText").innerHTML =
-            "It's a tie! No one was eliminated.<br>The Impostor was " +
-            players[impostorIndex];
+    if (tied.length > 1) 
+    {
+        document.getElementById("resultText").innerHTML = "It's a tie! No one was eliminated.<br>The Impostor was " + impostor;
         return;
     }
 
-    let votedOut = tied[0];
+    const votedOut = tied[0];
 
-    if (votedOut === impostorIndex) {
-        document.getElementById("resultText").innerHTML =
-            players[votedOut] + " WAS the Impostor! 🎉";
-    } else {
-        document.getElementById("resultText").innerHTML =
-            players[votedOut] + " was NOT the Impostor!<br>The Impostor was " +
-            players[impostorIndex];
+    if (votedOut === impostorIndex) 
+    {
+        document.getElementById("resultText").innerHTML = players[votedOut] + " WAS the Impostor!";
+    } 
+    else 
+    {
+        document.getElementById("resultText").innerHTML = players[votedOut] + " was NOT the Impostor!<br>The Impostor was " + impostor;
     }
 }
 
 // ---------- RESTART ----------
 
 function restartGame() {
-    document.getElementById("resultPhase").classList.add("hidden");
-    document.getElementById("roleReveal").classList.remove("hidden");
-    document.getElementById("votingPhase").classList.add("hidden");
-    document.getElementById("hintPhase").classList.add("hidden");
-
     setupGame();
 }
