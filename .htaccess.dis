@@ -1,0 +1,6 @@
+AuthType Basic
+AuthName "Basic Authentication"
+AuthUserFile /etc/httpd/conf/.htpasswd
+AuthGroupFile /etc/httpd/conf/groups
+require user oddoneout
+require group staff
