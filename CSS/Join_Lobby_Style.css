@@ -45,6 +45,29 @@ h1 {
     padding-bottom: 50px;
 }
 
+#username {
+    position: absolute;
+    top: 10%;
+    left: 85%;
+    width: 20%;
+    height: 10%;
+    transform: translateX(-50%);
+    font-size: clamp(18px, 2vmin, 2vmin);
+    background-color: white;
+    color: black;
+    border: 5px solid black;
+    border-radius: 10px;
+    
+        /* 👇 THIS centers text perfectly */
+    display: flex;
+    justify-content: center;  /* horizontal */
+    align-items: center;      /* vertical */
+
+    text-align: center; /* optional fallback */
+    font-size: 24px;
+    font-weight: bold;
+}
+
 .joinlobby-container{
     position: absolute;
     top: 40%;
@@ -75,15 +98,26 @@ button{
     width: 60%;
     height: 30.6%;
     min-height: 70px;
-    left: 20%;
 }
 
 #playerName {
     position: absolute;
-    top: 20%;
+    top: 10%;
     left: 50%;
     transform: translateX(-50%);
-    width: 80%;
+    width: 60%;
+    padding: 10px;
+    font-size: clamp(18px, 2vmin, 2vmin);
+    border: 2px solid black;
+    border-radius: 10px;
+}
+
+#roomCode {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
     padding: 10px;
     font-size: clamp(18px, 2vmin, 2vmin);
     border: 2px solid black;
@@ -91,7 +125,64 @@ button{
 }
 
 #joinLobby-button{
-    top: 55%;
+    top: 60%;
+    left: 18%;
+    width: 65%;
+}
+
+/* #lobbyContainer{
+    position: absolute;
+    top: 40%;
+    top: max(120px, 40%);
+    left: 30%;
+    width: 30%;
+    height: 25%;
+    min-width: 150px;
+    min-height: 200px;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    background-color: white;
+    border-radius: 10px;
+} */
+/* YZ2QFB */
+
+#lobbyTitle{
+
+    top: 30%;
+    left: 46%;
+    font-size: clamp(50px, 1vmin, 1vmin);
+}
+
+#playerLobbyText{
+    color: rgb(255, 255, 255);
+    position: absolute;
+    top: -26%;
+    font-size: clamp(24px, 3.5vmin, 36px);
+    width: 150%;
+}
+
+#playerName::placeholder {
+    color: grey;
+    opacity: 1; /* Ensure placeholder text is fully visible */
+}
+
+#playersJoined{
+    position: absolute;
+    color: black;
+    padding: 10px;
+    top: 40%;
+    top: max(120px, 40%);
+    left: 30%;
+    width: 29%;
+    height: 15%;
+    min-width: 150px;
+    min-height: 200px;
+    object-fit: contain;
+    padding-left: 10px;
+    border: 5px solid black;
+    background-color: white;
+    border-radius: 10px;
 }
 
 .leaderboard-container{
@@ -99,7 +190,7 @@ button{
     top: 40%;              /* Adjust this value to move it up/down */
     left: 70%;
     width: 12%;
-    height: 30%;
+    height: 25%;
     min-width: 150px;
     min-height: 200px;
     object-fit: contain;
@@ -113,6 +204,8 @@ button{
 #leaderboardText{
     color: white;
     position: absolute;
-    top: -23%;
-    font-size: clamp(24px, 3.7vmin, 3.7vmin);
+    left: 28%;
+    top: -25%;
+    width: 60%;
+    font-size: clamp(24px, 3.0vmin, 3.7vmin);
 }

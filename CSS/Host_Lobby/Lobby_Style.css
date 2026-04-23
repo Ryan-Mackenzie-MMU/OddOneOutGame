@@ -3,7 +3,7 @@
     top: 40%;              /* Adjust this value to move it up/down */
     left: 35%;
     width: 30%;
-    height: 28.5%;
+    height: 34%;
     object-fit: contain;
     padding-left: 10px;
     border: 5px solid black;
@@ -17,8 +17,8 @@
 #playerLobbyText{
     color: rgb(255, 255, 255);
     position: absolute;
-    top: -26%;
-    font-size: clamp(24px, 3.5vmin, 36px);
+    top: -25%;
+    font-size: clamp(24px, 4vmin, 4vmin);
     width: 150%;
 }
 
@@ -47,7 +47,7 @@
     top: 20%;              /* Adjust this value to move it up/down */
     left: 5%;
     width: 70%;
-    height: 60%;
+    height: 65%;
     object-fit: contain;
     padding-left: 10px;
     border: 5px solid black;
@@ -73,8 +73,6 @@ hr {
     border-radius: 30px;
     background-color: rgba(82, 72, 72, 0.95);
     width: 25%;
-    /*width: 254px;*/
-    /*height: 73px;*/
     height: 8%;
     font-size: 3vmin;
 }

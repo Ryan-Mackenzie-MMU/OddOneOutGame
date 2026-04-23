@@ -11,18 +11,25 @@
 
     <a href="../index.html"><img src="../Images/Impostor_Mask.png" alt="Impostor Mask" class="joinlobby-mask"></a>
 
-    <div class="joinlobby-container">
-        <input type="text" id="playerName" name="playerName" placeholder="Enter username">
+    <div id="username"></div>
 
-        <button id="joinLobby-button">Join Lobby</button>
-    </div>
+<div id="joinContainer" class="joinlobby-container">
+    <input type="text" id="playerName" placeholder="Enter username">
+    <input type="text" id="roomCode" placeholder="Enter room code">
+    <button id="joinLobby-button">Join Lobby</button>
+</div>
 
-    <div class="leaderboard-container">
+<div id="lobbyContainer" style="display:none">
+    <h1 id="lobbyTitle">Lobby</h1>
+    <div id="playersJoined"></div>
+</div>
+
+    <!-- <div class="leaderboard-container">
         <h1 id="leaderboardText">Leaderboard</h1>
         <h2>Top 100</h2>
-    </div>
+    </div> -->
 
-    <script src="../JavaScript/Join_Lobby_Script.js"></script>
+    <script src="../JS/Join_Lobby_Script.js"></script>
 </body>
 
 </html>
