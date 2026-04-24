@@ -149,6 +149,123 @@ app.get("/room-players/:roomId", (req, res) => {
   );
 });
 
+// -----------------------------
+// GET MY ROLE (PRIVATE)
+// -----------------------------
+app.get("/my-role/:roomId/:userId", (req, res) => {
+  const { roomId, userId } = req.params;
+
+  db.query(
+    `SELECT role, secret_word
+     FROM RoomPlayers
+     WHERE room_id = ? AND user_id = ?`,
+    [roomId, userId],
+    (err, results) => {
+      if (err) {
+        console.error("MY ROLE ERROR:", err);
+        return res.status(500).json(err);
+      }
+
+      if (results.length === 0) {
+        return res.json(null);
+      }
+
+      res.json(results[0]);
+    }
+  );
+});
+
+app.post("/start-game/:roomId", (req, res) => {
+  const roomId = req.params.roomId;
+
+  db.query(
+    "UPDATE Rooms SET game_started = 1 WHERE id = ?",
+    [roomId],
+    (err) => {
+      if (err) return res.status(500).json(err);
+
+      res.json({ message: "Game started" });
+    }
+  );
+});
+
+app.post("/assign-roles/:roomId", (req, res) => {
+
+    const roomId = req.params.roomId;
+
+    const themes = [0,1,2,3,4,5];
+    const themeIndex = Math.floor(Math.random() * themes.length);
+
+    db.query(
+        "UPDATE Rooms SET theme_index = ? WHERE id = ?",
+        [themeIndex, roomId],
+        (err) => {
+
+            if (err) return res.status(500).json(err);
+
+            db.query(
+                "SELECT user_id FROM RoomPlayers WHERE room_id = ?",
+                [roomId],
+                (err, players) => {
+
+                    if (err) return res.status(500).json(err);
+
+                    const impostorIndex = Math.floor(Math.random() * players.length);
+
+                    let completed = 0;
+
+                    players.forEach((p, i) => {
+
+                        const role = (i === impostorIndex) ? "impostor" : "player";
+                        const word = "WORD";
+
+                        db.query(
+                            "UPDATE RoomPlayers SET role=?, secret_word=? WHERE room_id=? AND user_id=?",
+                            [role, word, roomId, p.user_id],
+                            (err) => {
+
+                                if (err) console.error(err);
+
+                                completed++;
+
+                                // ✅ ONLY WHEN ALL WRITES FINISH
+                                if (completed === players.length) {
+
+                                    db.query(
+                                        "UPDATE Rooms SET game_started = 1 WHERE id = ?",
+                                        [roomId],
+                                        () => {
+
+                                            res.json({
+                                                success: true,
+                                                themeIndex
+                                            });
+
+                                        }
+                                    );
+                                }
+                            }
+                        );
+                    });
+                }
+            );
+        }
+    );
+});
+
+app.get("/room/:roomId", (req, res) => {
+  const roomId = req.params.roomId;
+
+  db.query(
+    "SELECT * FROM Rooms WHERE id = ?",
+    [roomId],
+    (err, results) => {
+      if (err) return res.status(500).json(err);
+      res.json(results[0]);
+    }
+  );
+});
+
 // =============================
 // START SERVER
 // =============================

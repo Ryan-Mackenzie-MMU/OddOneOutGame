@@ -1,4 +1,3 @@
-
 // =============================
 // DOM ELEMENTS
 // =============================
@@ -11,14 +10,20 @@ const lobbyContainer = document.getElementById("lobbyContainer");
 const playersJoinedDiv = document.getElementById("playersJoined");
 const usernameDiv = document.getElementById("username");
 
-let currentRoomId = null;
-let currentUserId = null;
-
+// =============================
+// STATE
+// =============================
+let roomId = null;
+let userId = null;
+let username = null;
+let gameCheckInterval = null;
 
 // =============================
 // LOAD PLAYERS
 // =============================
-async function loadPlayers(roomId) {
+async function loadPlayers() {
+    if (!roomId) return;
+
     try {
         const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
         const players = await res.json();
@@ -40,23 +45,48 @@ async function loadPlayers(roomId) {
     }
 }
 
-
 // =============================
-// SHOW USERNAME IN LOBBY
+// SHOW USERNAME
 // =============================
-function setUsername(username) {
+function setUsername(name) {
     if (!usernameDiv) return;
-    usernameDiv.textContent = username;
+    usernameDiv.textContent = name;
 }
 
+// =============================
+// START GAME CHECK (MATCH HOST STYLE)
+// =============================
+function startGameCheck() {
+
+    if (gameCheckInterval) clearInterval(gameCheckInterval);
+
+    gameCheckInterval = setInterval(async () => {
+
+        if (!roomId) return;
+
+        try {
+            const res = await fetch(`http://localhost:3000/room/${roomId}`);
+            const room = await res.json();
+
+            if (room && room.game_started === 1) {
+
+                // ✅ SAME AS HOST
+                location.href = `../HTML/Game.html?roomId=${roomId}&userId=${userId}&username=${username}`;
+            }
+
+        } catch (err) {
+            console.error("Polling error:", err);
+        }
+
+    }, 1500);
+}
 
 // =============================
-// JOIN LOBBY
+// JOIN LOBBY (MATCH HOST FLOW)
 // =============================
 joinBtn.addEventListener("click", async () => {
 
-    // ✅ ALWAYS TRIM INPUT HERE
-    const username = playerInput.value.trim();
+    username = playerInput.value.trim(); // ✅ store globally
     const roomCode = roomCodeInput.value.trim().toUpperCase();
 
     if (!username || !roomCode) {
@@ -65,7 +95,7 @@ joinBtn.addEventListener("click", async () => {
     }
 
     try {
-        // 1️⃣ Get room
+        // 1️⃣ GET ROOM
         const roomRes = await fetch(`http://localhost:3000/room-by-code/${roomCode}`);
         const room = await roomRes.json();
 
@@ -74,9 +104,9 @@ joinBtn.addEventListener("click", async () => {
             return;
         }
 
-        currentRoomId = room.id;
+        roomId = room.id;
 
-        // 2️⃣ Create user
+        // 2️⃣ CREATE USER
         const userRes = await fetch("http://localhost:3000/create-user", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -84,49 +114,41 @@ joinBtn.addEventListener("click", async () => {
         });
 
         const userData = await userRes.json();
-        currentUserId = userData.userId;
+        userId = userData.userId;
 
-        // 3️⃣ Join room
+        // ✅ SAVE SESSION (same as host)
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("roomId", roomId);
+        localStorage.setItem("username", username);
+
+        // 3️⃣ JOIN ROOM
         await fetch("http://localhost:3000/join-room", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                roomId: room.id,
-                userId: currentUserId
+                roomId,
+                userId
             })
         });
 
-        // 4️⃣ SAVE DATA FOR GAME.JS
-        localStorage.setItem("username", username);
-        localStorage.setItem("roomId", room.id);
-        localStorage.setItem("userId", currentUserId);
-
-        // 5️⃣ SWITCH UI (stay in lobby)
+        // 4️⃣ SWITCH UI
         joinContainer.style.display = "none";
         lobbyContainer.style.display = "block";
 
-        // 6️⃣ SHOW USERNAME
         setUsername(username);
 
-        // 7️⃣ LOAD PLAYERS
-        loadPlayers(room.id);
+        // 5️⃣ LOAD PLAYERS
+        loadPlayers();
 
-        // 8️⃣ LIVE UPDATES
         setInterval(() => {
-            loadPlayers(room.id);
+            loadPlayers();
         }, 1500);
+
+        // 6️⃣ START GAME POLLING
+        startGameCheck();
 
     } catch (err) {
         console.error("JOIN ERROR:", err);
         alert("Error joining lobby");
     }
 });
-
-
-// =============================
-// SAFE UI SYNC (optional)
-// =============================
-setInterval(() => {
-    const username = playerInput.value.trim();
-    setUsername(username);
-}, 500);

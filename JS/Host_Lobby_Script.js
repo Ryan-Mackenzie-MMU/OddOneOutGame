@@ -1,182 +1,191 @@
-const publicBtn = document.getElementById("PublicBt"); 
-const privateBtn = document.getElementById("PrivateBt"); 
+const publicBtn = document.getElementById("PublicBt");
+const privateBtn = document.getElementById("PrivateBt");
 
-publicBtn.addEventListener("click", () => { 
-    publicBtn.classList.add("chosen"); 
-    publicBtn.classList.remove("notChosen"); 
+publicBtn.addEventListener("click", () => {
+    publicBtn.classList.add("chosen");
+    publicBtn.classList.remove("notChosen");
 
-    privateBtn.classList.add("notChosen"); 
-    privateBtn.classList.remove("chosen"); 
-}); 
+    privateBtn.classList.add("notChosen");
+    privateBtn.classList.remove("chosen");
+});
 
-privateBtn.addEventListener("click", () => { 
-    privateBtn.classList.add("chosen"); 
-    privateBtn.classList.remove("notChosen"); 
+privateBtn.addEventListener("click", () => {
+    privateBtn.classList.add("chosen");
+    privateBtn.classList.remove("notChosen");
 
-    publicBtn.classList.add("notChosen"); 
-    publicBtn.classList.remove("chosen"); 
-}); 
+    publicBtn.classList.add("notChosen");
+    publicBtn.classList.remove("chosen");
+});
 
-// -----------------------------
+
+// =============================
 // Room state
-// -----------------------------
-let roomId = null; 
-let gameCode = null; 
+// =============================
+let roomId = null;
+let gameCode = null;
 
-// -----------------------------
+
+// =============================
 // DOM elements
-// -----------------------------
-const playerInput = document.getElementById("playerName"); 
-const addPlayerBtn = document.getElementById("addPlayer"); 
-const playersJoinedDiv = document.getElementById("playersJoined"); 
+// =============================
+const playerInput = document.getElementById("playerName");
+const addPlayerBtn = document.getElementById("addPlayer");
+const playersJoinedDiv = document.getElementById("playersJoined");
+const startGameBtn = document.getElementById("startGame-button");
 
-// -----------------------------
-// Lock host UI (ONLY AFTER JOIN)
-// -----------------------------
-function lockHostInput() { 
-    playerInput.disabled = true; 
-    addPlayerBtn.style.display = "none"; 
-} 
 
-// -----------------------------
-// Create room on page load
-// -----------------------------
-async function createRoom() { 
-    try { 
-        // 1️⃣ Create room
-        const res = await fetch("http://localhost:3000/create-room", { 
-            method: "POST", 
-            headers: { 
-                "Content-Type": "application/json" 
-            } 
-        }); 
+// =============================
+// Lock host UI
+// =============================
+function lockHostInput() {
+    playerInput.disabled = true;
+    addPlayerBtn.style.display = "none";
+}
 
-        const data = await res.json(); 
 
-        roomId = data.roomId; 
-        gameCode = data.gameCode; 
+// =============================
+// Create room
+// =============================
+async function createRoom() {
+    try {
+        const res = await fetch("http://localhost:3000/create-room", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        });
 
-        document.getElementById("gameCode").textContent = gameCode; 
+        const data = await res.json();
 
-        console.log("Room created:", roomId, gameCode); 
+        roomId = data.roomId;
+        gameCode = data.gameCode;
 
-        loadPlayers(); 
+        document.getElementById("gameCode").textContent = gameCode;
 
-    } catch (err) { 
-        console.error("Error creating room:", err); 
-    } 
-} 
+        console.log("Room created:", roomId, gameCode);
 
-// -----------------------------
-// Load players from DB
-// -----------------------------
-async function loadPlayers() { 
-    if (!roomId) return; 
+        loadPlayers();
 
-    try { 
-        const res = await fetch(`http://localhost:3000/room-players/${roomId}`); 
-        const players = await res.json(); 
+    } catch (err) {
+        console.error("Error creating room:", err);
+    }
+}
 
-        playersJoinedDiv.innerHTML = ""; 
 
-        console.log("RAW RESPONSE:", players);
+// =============================
+// Load players
+// =============================
+async function loadPlayers() {
+    if (!roomId) return;
 
-        players.forEach((player, index) => { 
-            const div = document.createElement("div"); 
-            div.textContent = player.username; 
-            playersJoinedDiv.appendChild(div); 
+    try {
+        const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
+        const players = await res.json();
 
-            if (index < players.length - 1) { 
-                playersJoinedDiv.appendChild(document.createElement("hr")); 
-            } 
-        }); 
+        playersJoinedDiv.innerHTML = "";
 
-    } catch (err) { 
-        console.error("Error loading players:", err); 
-    } 
-} 
+        console.log("PLAYERS:", players);
 
-// -----------------------------
-// Add player (HOST ONLY)
-// -----------------------------
-addPlayerBtn.addEventListener("click", async () => { 
-    const newPlayer = playerInput.value.trim(); 
+        players.forEach((player, index) => {
+            const div = document.createElement("div");
+            div.textContent = player.username;
+            playersJoinedDiv.appendChild(div);
 
-    if (newPlayer === "") { 
-        alert("Please enter a name!"); 
-        return; 
-    } 
+            if (index < players.length - 1) {
+                playersJoinedDiv.appendChild(document.createElement("hr"));
+            }
+        });
 
-    if (!roomId) { 
-        alert("Room not created yet!"); 
-        return; 
-    } 
+    } catch (err) {
+        console.error("Error loading players:", err);
+    }
+}
 
-    try { 
-        // 1️⃣ Create user
-        const userRes = await fetch("http://localhost:3000/create-user", { 
-            method: "POST", 
-            headers: { 
-                "Content-Type": "application/json" 
-            }, 
-            body: JSON.stringify({ username: newPlayer }) 
-        }); 
 
-        const userData = await userRes.json(); 
+// =============================
+// Add player
+// =============================
+addPlayerBtn.addEventListener("click", async () => {
 
-        // 2️⃣ Join room
-        await fetch("http://localhost:3000/join-room", { 
-            method: "POST", 
-            headers: { 
-                "Content-Type": "application/json" 
-            }, 
-            body: JSON.stringify({ 
-                roomId: roomId, 
-                userId: userData.userId 
-            }) 
-        }); 
+    const newPlayer = playerInput.value.trim();
 
-        playerInput.value = ""; 
+    if (!newPlayer) {
+        alert("Please enter a name!");
+        return;
+    }
 
-        loadPlayers(); 
+    if (!roomId) {
+        alert("Room not created yet!");
+        return;
+    }
 
-        // ⭐ NOW LOCK (ONLY AFTER SUCCESS)
-        lockHostInput(); 
+    try {
+        const userRes = await fetch("http://localhost:3000/create-user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: newPlayer })
+        });
 
-    } catch (err) { 
-        console.error("Error adding player:", err); 
-    } 
-}); 
+        const userData = await userRes.json();
 
-// -----------------------------
-// Start game
-// -----------------------------
-document.getElementById("startGame-button").addEventListener("click", async () => { 
-    try { 
-        const res = await fetch(`http://localhost:3000/room-players/${roomId}`); 
-        const players = await res.json(); 
+        // ✅ SAVE HOST SESSION
+        localStorage.setItem("userId", userData.userId);
+        localStorage.setItem("roomId", roomId);
+        localStorage.setItem("username", newPlayer);
 
-        if (players.length < 3) { 
-            alert("Less than 3 players in game lobby - cannot start game"); 
-            return; 
-        } 
+        await fetch("http://localhost:3000/join-room", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                roomId,
+                userId: userData.userId
+            })
+        });
 
-        const playerNames = players.map(p => p.username); 
-        localStorage.setItem("gamePlayers", JSON.stringify(playerNames)); 
+        playerInput.value = "";
 
-        location.href = '../HTML/Game.html'; 
+        loadPlayers();
 
-    } catch (err) { 
-        console.error("Error starting game:", err); 
-    } 
-}); 
+        lockHostInput();
 
-// -----------------------------
+    } catch (err) {
+        console.error("Error adding player:", err);
+    }
+});
+
+
+// =============================
+// START GAME (ONLY ONE HANDLER)
+// =============================
+document.getElementById("startGame-button").addEventListener("click", async () => {
+
+    try {
+        const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
+        const players = await res.json();
+
+        if (!Array.isArray(players) || players.length < 1) {
+            alert("Need at least 3 players to start");
+            return;
+        }
+
+        // start game in DB
+        await fetch(`http://localhost:3000/start-game/${roomId}`, {
+            method: "POST"
+        });
+
+        // go to game (host also transitions)
+        location.href = `../HTML/Game.html?roomId=${roomId}&userId=${localStorage.getItem("userId")}&username=${localStorage.getItem("username")}`;
+
+    } catch (err) {
+        console.error("Start game error:", err);
+    }
+});
+
+
+// =============================
 // INIT
-// -----------------------------
-createRoom(); 
+// =============================
+createRoom();
 
-// 🔁 auto-refresh lobby every 1 second
-setInterval(() => { 
-    loadPlayers(); 
+// auto refresh lobby
+setInterval(() => {
+    loadPlayers();
 }, 1000);

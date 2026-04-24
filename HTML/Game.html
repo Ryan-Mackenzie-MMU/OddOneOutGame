@@ -15,41 +15,42 @@
 
 <div class="game-box">
 
-    <h1 id="phaseTitle">Pass the Device</h1>
-    <h2 id="playerTurn">Player 1</h2>
+    <!-- ALWAYS VISIBLE HEADER -->
+    <h1 id="phaseTitle">Loading Game...</h1>
+    <h2 id="playerTurn"></h2>
 
+    <!-- ROLE SCREEN (used by JS) -->
     <div id="roleReveal">
-        <p>Click reveal to see your role</p>
-        <button onclick="revealRole()">Reveal</button>
+        <p>Game starting...</p>
     </div>
 
     <div id="roleText" class="hidden"></div>
-    <button id="nextButton" class="hidden" onclick="nextPlayer()">Next</button>
 
-    <!-- Hint Phase -->
+    <button id="nextButton" class="hidden">Next</button>
+
+    <!-- HINT PHASE -->
     <div id="hintPhase" class="hidden">
-        <h2>Type your hint below</h2>
+        <h2>Enter your hint</h2>
 
         <form id="hintForm">
-            <label for="hint">Enter hint:</label>
-            <input type="text" id="hint" name="hint">
+            <input type="text" id="hint" placeholder="Type hint..." />
             <br><br>
-
-            <input type="submit" value="Submit">
+            <button type="submit">Submit</button>
         </form>
-
     </div>
 
+    <!-- VOTING PHASE -->
     <div id="votingPhase" class="hidden">
         <h2>Vote for the Impostor</h2>
-        <div class="player-list" id="voteButtons"></div>
+        <div id="voteButtons"></div>
     </div>
 
+    <!-- RESULT PHASE -->
     <div id="resultPhase" class="hidden">
         <h2 id="resultText"></h2>
 
-        <button id="PlayAgainBt" onclick="restartGame()">Play Again</button>
-        <button id="ToLobbyBt" onclick="location.href='../HTML/Host_Lobby.html'">Back to Lobby</button>
+        <button onclick="location.reload()">Play Again</button>
+        <button onclick="location.href='../HTML/Host_Lobby.html'">Back to Lobby</button>
     </div>
 
 </div>
