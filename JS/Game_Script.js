@@ -105,7 +105,7 @@ function showRoleScreen() {
 
     setTimeout(() => {
         startGame();
-    }, 5000);
+    }, 500000);
 }
 
 // =============================
