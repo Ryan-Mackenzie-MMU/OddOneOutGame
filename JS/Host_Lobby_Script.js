@@ -19,14 +19,17 @@ privateBtn.addEventListener("click", () => {
 
 
 // =============================
-// Room state
+// STATE
 // =============================
 let roomId = null;
 let gameCode = null;
 
+let hostUserId = null;
+let hostUsername = null;
+
 
 // =============================
-// DOM elements
+// DOM
 // =============================
 const playerInput = document.getElementById("playerName");
 const addPlayerBtn = document.getElementById("addPlayer");
@@ -35,7 +38,7 @@ const startGameBtn = document.getElementById("startGame-button");
 
 
 // =============================
-// Lock host UI
+// LOCK UI
 // =============================
 function lockHostInput() {
     playerInput.disabled = true;
@@ -44,10 +47,11 @@ function lockHostInput() {
 
 
 // =============================
-// Create room
+// CREATE ROOM (NO LOCK HERE)
 // =============================
 async function createRoom() {
     try {
+
         const res = await fetch("http://localhost:3000/create-room", {
             method: "POST",
             headers: { "Content-Type": "application/json" }
@@ -71,25 +75,26 @@ async function createRoom() {
 
 
 // =============================
-// Load players
+// LOAD PLAYERS
 // =============================
 async function loadPlayers() {
     if (!roomId) return;
 
     try {
-        const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
+        const res = await fetch(`http://localhost:3000/room-players/${roomId}`, {
+            cache: "no-store"
+        });
+
         const players = await res.json();
 
         playersJoinedDiv.innerHTML = "";
 
-        console.log("PLAYERS:", players);
-
-        players.forEach((player, index) => {
+        players.forEach((p, i) => {
             const div = document.createElement("div");
-            div.textContent = player.username;
+            div.textContent = p.username;
             playersJoinedDiv.appendChild(div);
 
-            if (index < players.length - 1) {
+            if (i < players.length - 1) {
                 playersJoinedDiv.appendChild(document.createElement("hr"));
             }
         });
@@ -101,7 +106,7 @@ async function loadPlayers() {
 
 
 // =============================
-// Add player
+// ADD PLAYER (ONLY HERE LOCKS)
 // =============================
 addPlayerBtn.addEventListener("click", async () => {
 
@@ -117,66 +122,54 @@ addPlayerBtn.addEventListener("click", async () => {
         return;
     }
 
-    try {
-        const userRes = await fetch("http://localhost:3000/create-user", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: newPlayer })
-        });
+    const userRes = await fetch("http://localhost:3000/create-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: newPlayer })
+    });
 
-        const userData = await userRes.json();
+    const userData = await userRes.json();
 
-        // ✅ SAVE HOST SESSION
-        localStorage.setItem("userId", userData.userId);
-        localStorage.setItem("roomId", roomId);
-        localStorage.setItem("username", newPlayer);
+    await fetch("http://localhost:3000/join-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            roomId,
+            userId: userData.userId
+        })
+    });
 
-        await fetch("http://localhost:3000/join-room", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                roomId,
-                userId: userData.userId
-            })
-        });
+    hostUserId = userData.userId;
+    hostUsername = newPlayer;
 
-        playerInput.value = "";
+    playerInput.value = "";
 
-        loadPlayers();
+    loadPlayers();
 
-        lockHostInput();
-
-    } catch (err) {
-        console.error("Error adding player:", err);
-    }
+    // ✅ LOCK ONLY AFTER CLICK
+    lockHostInput();
 });
 
 
 // =============================
-// START GAME (ONLY ONE HANDLER)
+// START GAME
 // =============================
-document.getElementById("startGame-button").addEventListener("click", async () => {
+startGameBtn.addEventListener("click", async () => {
 
-    try {
-        const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
-        const players = await res.json();
+    const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
+    const players = await res.json();
 
-        if (!Array.isArray(players) || players.length < 1) {
-            alert("Need at least 3 players to start");
-            return;
-        }
-
-        // start game in DB
-        await fetch(`http://localhost:3000/start-game/${roomId}`, {
-            method: "POST"
-        });
-
-        // go to game (host also transitions)
-        location.href = `../HTML/Game.html?roomId=${roomId}&userId=${localStorage.getItem("userId")}&username=${localStorage.getItem("username")}`;
-
-    } catch (err) {
-        console.error("Start game error:", err);
+    if (!Array.isArray(players) || players.length < 3) {
+        alert("Need at least 3 players to start");
+        return;
     }
+
+    await fetch(`http://localhost:3000/start-game/${roomId}`, {
+        method: "POST"
+    });
+
+    location.href =
+        `../HTML/Game.html?roomId=${roomId}&userId=${hostUserId}&username=${encodeURIComponent(hostUsername)}`;
 });
 
 
@@ -185,7 +178,4 @@ document.getElementById("startGame-button").addEventListener("click", async () =
 // =============================
 createRoom();
 
-// auto refresh lobby
-setInterval(() => {
-    loadPlayers();
-}, 1000);
+setInterval(loadPlayers, 1000);

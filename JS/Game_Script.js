@@ -1,8 +1,15 @@
+// =============================
+// URL PARAMS + SESSION
+// =============================
 const params = new URLSearchParams(window.location.search);
 
 const userId = params.get("userId") || localStorage.getItem("userId");
 const roomId = params.get("roomId") || localStorage.getItem("roomId");
 const username = params.get("username") || localStorage.getItem("username");
+
+
+console.log("URL userId:", params.get("userId"));
+console.log("LOCAL userId:", localStorage.getItem("userId"));
 
 localStorage.setItem("userId", userId);
 localStorage.setItem("roomId", roomId);
@@ -22,7 +29,7 @@ let gameStarted = false;
 let roleShown = false;
 
 // =============================
-// YOUR OLD DATA (RESTORED)
+// THEMES / WORDS
 // =============================
 let themes = [
     ["Sport", 0],
@@ -50,16 +57,24 @@ function random(arr) {
 }
 
 // =============================
-// LOAD ROLE
+// LOAD ROLE (STRICT + NO CACHE)
 // =============================
 async function loadMyRole() {
     try {
-        const res = await fetch(`http://localhost:3000/my-role/${roomId}/${userId}`);
+        const res = await fetch(
+            `http://localhost:3000/my-role/${roomId}/${userId}`,
+            { cache: "no-store" } // 🔥 prevent stale data
+        );
+
         const data = await res.json();
 
-        console.log("ROLE DATA:", data);
+        console.log("ROLE DATA:", data, "FOR USER:", userId);
 
-        if (!data) return false;
+        // 🔥 STRICT CHECK (fix race condition)
+        if (!data || !data.role) {
+            console.log("Role not ready yet...");
+            return false;
+        }
 
         myRole = data.role;
         secretWord = data.secret_word;
@@ -73,7 +88,7 @@ async function loadMyRole() {
 }
 
 // =============================
-// SHOW ROLE SCREEN (5 SECONDS)
+// SHOW ROLE SCREEN
 // =============================
 function showRoleScreen() {
 
@@ -105,7 +120,7 @@ function showRoleScreen() {
 
     setTimeout(() => {
         startGame();
-    }, 500000);
+    }, 5000); // (reduced from 500000 for sanity)
 }
 
 // =============================
@@ -127,14 +142,17 @@ function startGame() {
 }
 
 // =============================
-// SERVER POLLING (START TRIGGER)
+// SERVER POLLING (FIXED)
 // =============================
 setInterval(async () => {
 
     if (gameStarted) return;
 
     try {
-        const res = await fetch(`http://localhost:3000/room/${roomId}`);
+        const res = await fetch(
+            `http://localhost:3000/room/${roomId}`,
+            { cache: "no-store" } // 🔥 prevent stale room state
+        );
 
         if (!res.ok) return;
 
@@ -147,6 +165,9 @@ setInterval(async () => {
         const ok = await loadMyRole();
 
         if (!ok) return;
+
+        // 🔥 DOUBLE SAFETY CHECK
+        if (!myRole) return;
 
         gameStarted = true;
 
