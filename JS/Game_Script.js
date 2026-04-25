@@ -1,19 +1,13 @@
 // =============================
-// URL PARAMS + SESSION
+// URL PARAMS
 // =============================
 const params = new URLSearchParams(window.location.search);
 
-const userId = params.get("userId") || localStorage.getItem("userId");
-const roomId = params.get("roomId") || localStorage.getItem("roomId");
-const username = params.get("username") || localStorage.getItem("username");
+const userId = params.get("userId");
+const roomId = params.get("roomId");
+const username = params.get("username");
 
-
-console.log("URL userId:", params.get("userId"));
-console.log("LOCAL userId:", localStorage.getItem("userId"));
-
-localStorage.setItem("userId", userId);
-localStorage.setItem("roomId", roomId);
-localStorage.setItem("username", username);
+console.log("USER:", userId, "ROOM:", roomId);
 
 if (!userId || !roomId) {
     alert("Missing session data");
@@ -25,64 +19,50 @@ if (!userId || !roomId) {
 // =============================
 let myRole = null;
 let secretWord = null;
+let themeIndex = null;
+
 let gameStarted = false;
 let roleShown = false;
 
 // =============================
-// THEMES / WORDS
+// LOCAL DISPLAY DATA
 // =============================
-let themes = [
-    ["Sport", 0],
-    ["Food", 1],
-    ["Games", 2],
-    ["Films", 3],
-    ["Celebrities", 4],
-    ["Music", 5]
-];
-
-let words = [
-    ["Football", "Basketball", "Cricket", "Tennis", "Swimming"],
-    ["Pizza", "Curry", "Steak", "Fish", "Cake"],
-    ["Minecraft", "Fortnite", "Clash Royale", "GTA V"],
-    ["Titanic", "Frozen", "Inception", "Avatar"],
-    ["Taylor Swift", "The Rock", "Ronaldo", "Beyonce"],
-    ["Pop", "Rock", "Jazz", "Rap"]
+const themes = [
+    "Sport",
+    "Food",
+    "Games",
+    "Films",
+    "Celebrities",
+    "Music"
 ];
 
 // =============================
-// HELPERS
+// LOAD FULL GAME DATA (NEW SERVER ENDPOINT)
 // =============================
-function random(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// =============================
-// LOAD ROLE (STRICT + NO CACHE)
-// =============================
-async function loadMyRole() {
+async function loadGameData() {
     try {
         const res = await fetch(
-            `http://localhost:3000/my-role/${roomId}/${userId}`,
-            { cache: "no-store" } // 🔥 prevent stale data
+            `http://localhost:3000/game-data/${roomId}/${userId}`,
+            { cache: "no-store" }
         );
 
         const data = await res.json();
 
-        console.log("ROLE DATA:", data, "FOR USER:", userId);
+        console.log("GAME DATA:", data);
 
-        // 🔥 STRICT CHECK (fix race condition)
-        if (!data || !data.role) {
-            console.log("Role not ready yet...");
-            return false;
-        }
+        if (!data) return false;
 
+        // ✅ FROM RoomGame
+        themeIndex = data.theme_index;
+
+        // ✅ FROM RoomPlayers
         myRole = data.role;
         secretWord = data.secret_word;
 
         return true;
 
     } catch (err) {
-        console.error("Role error:", err);
+        console.error("Game data error:", err);
         return false;
     }
 }
@@ -95,7 +75,8 @@ function showRoleScreen() {
     if (roleShown) return;
     roleShown = true;
 
-    const isCivilian = (myRole !== "impostor");
+    const isImpostor = myRole === "impostor";
+    const themeName = themes[themeIndex] || "Unknown Theme";
 
     const box = document.querySelector(".game-box");
 
@@ -104,45 +85,43 @@ function showRoleScreen() {
         <h2>${username}</h2>
 
         <h2>
-            ${isCivilian
-                ? "You are a CIVILIAN 👤"
-                : "You are the IMPOSTOR 😈"}
+            ${isImpostor ? "You are the IMPOSTOR 😈" : "You are a CIVILIAN 👤"}
         </h2>
 
         ${
-            isCivilian
-                ? `<p>Your Word: ${secretWord}</p>`
-                : `<p>You have no word. Blend in!</p>`
+            isImpostor
+                ? `<p>You have no word. Blend in!</p>`
+                : `<p><strong>Your Word:</strong> ${secretWord}</p>`
         }
+
+        <h3>Theme: ${themeName}</h3>
 
         <p>Game starting...</p>
     `;
 
     setTimeout(() => {
-        startGame();
-    }, 5000); // (reduced from 500000 for sanity)
+        startGame(themeName);
+    }, 40000);
 }
 
 // =============================
-// MAIN GAME START
+// START GAME PHASE
 // =============================
-function startGame() {
-
-    const theme = random(themes);
+function startGame(themeName) {
 
     const box = document.querySelector(".game-box");
 
     box.innerHTML = `
         <h1>Game Started</h1>
-        <h2>Theme: ${theme[0]}</h2>
-        <p>Continue gameplay here...</p>
+        <h2>Theme: ${themeName}</h2>
+        <p>Discuss and find the impostor!</p>
     `;
 
-    console.log("Game fully started");
+    console.log("Game started:", themeName);
 }
 
 // =============================
-// SERVER POLLING (FIXED)
+// POLLING LOOP (SIMPLIFIED + FIXED)
 // =============================
 setInterval(async () => {
 
@@ -150,27 +129,18 @@ setInterval(async () => {
 
     try {
         const res = await fetch(
-            `http://localhost:3000/room/${roomId}`,
-            { cache: "no-store" } // 🔥 prevent stale room state
+            `http://localhost:3000/room-game/${roomId}`,
+            { cache: "no-store" }
         );
 
-        if (!res.ok) return;
+        const roomGame = await res.json();
 
-        const room = await res.json();
+        if (!roomGame || roomGame.started !== 1) return;
 
-        console.log("ROOM:", room);
-
-        if (!room || room.game_started !== 1) return;
-
-        const ok = await loadMyRole();
-
+        const ok = await loadGameData();
         if (!ok) return;
 
-        // 🔥 DOUBLE SAFETY CHECK
-        if (!myRole) return;
-
         gameStarted = true;
-
         showRoleScreen();
 
     } catch (err) {
@@ -182,6 +152,4 @@ setInterval(async () => {
 // =============================
 // INIT
 // =============================
-(function init() {
-    console.log("Game waiting for start...");
-})();
+console.log("Game waiting for start...");

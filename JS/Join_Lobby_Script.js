@@ -16,7 +16,9 @@ const usernameDiv = document.getElementById("username");
 let roomId = null;
 let userId = null;
 let username = null;
-let gameCheckInterval = null;
+
+let playerPoll = null;
+let gamePoll = null;
 
 // =============================
 // LOAD PLAYERS
@@ -54,39 +56,43 @@ function setUsername(name) {
 }
 
 // =============================
-// START GAME CHECK (MATCH HOST STYLE)
+// GAME START CHECK (FIXED)
 // =============================
 function startGameCheck() {
 
-    if (gameCheckInterval) clearInterval(gameCheckInterval);
+    if (gamePoll) clearInterval(gamePoll);
 
-    gameCheckInterval = setInterval(async () => {
+    gamePoll = setInterval(async () => {
 
         if (!roomId) return;
 
         try {
-            const res = await fetch(`http://localhost:3000/room/${roomId}`);
-            const room = await res.json();
+            const res = await fetch(`http://localhost:3000/room-game/${roomId}`);
+            const roomGame = await res.json();
 
-            if (room && room.game_started === 1) {
+            // IMPORTANT: match DB column exactly
+            if (!roomGame || roomGame.started !== 1) return;
 
-                // ✅ SAME AS HOST
-                location.href = `../HTML/Game.html?roomId=${roomId}&userId=${userId}&username=${username}`;
-            }
+            clearInterval(gamePoll);
+            clearInterval(playerPoll);
+
+            // go to game
+            location.href =
+                `../HTML/Game.html?roomId=${roomId}&userId=${userId}&username=${username}`;
 
         } catch (err) {
-            console.error("Polling error:", err);
+            console.error("Game polling error:", err);
         }
 
     }, 1500);
 }
 
 // =============================
-// JOIN LOBBY (MATCH HOST FLOW)
+// JOIN LOBBY (FIXED FLOW)
 // =============================
 joinBtn.addEventListener("click", async () => {
 
-    username = playerInput.value.trim(); // ✅ store globally
+    username = playerInput.value.trim();
     const roomCode = roomCodeInput.value.trim().toUpperCase();
 
     if (!username || !roomCode) {
@@ -95,7 +101,7 @@ joinBtn.addEventListener("click", async () => {
     }
 
     try {
-        // 1️⃣ GET ROOM
+        // 1. FIND ROOM
         const roomRes = await fetch(`http://localhost:3000/room-by-code/${roomCode}`);
         const room = await roomRes.json();
 
@@ -106,7 +112,7 @@ joinBtn.addEventListener("click", async () => {
 
         roomId = room.id;
 
-        // 2️⃣ CREATE USER
+        // 2. CREATE USER
         const userRes = await fetch("http://localhost:3000/create-user", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -116,35 +122,35 @@ joinBtn.addEventListener("click", async () => {
         const userData = await userRes.json();
         userId = userData.userId;
 
-        // ✅ SAVE SESSION (same as host)
+        if (!userId) {
+            alert("User creation failed");
+            return;
+        }
+
+        // 3. JOIN ROOM
+        await fetch("http://localhost:3000/join-room", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roomId, userId })
+        });
+
+        // 4. SAVE SESSION
         localStorage.setItem("userId", userId);
         localStorage.setItem("roomId", roomId);
         localStorage.setItem("username", username);
 
-        // 3️⃣ JOIN ROOM
-        await fetch("http://localhost:3000/join-room", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                roomId,
-                userId
-            })
-        });
-
-        // 4️⃣ SWITCH UI
+        // 5. SWITCH UI
         joinContainer.style.display = "none";
         lobbyContainer.style.display = "block";
 
         setUsername(username);
 
-        // 5️⃣ LOAD PLAYERS
+        // 6. INITIAL LOAD
         loadPlayers();
 
-        setInterval(() => {
-            loadPlayers();
-        }, 1500);
+        playerPoll = setInterval(loadPlayers, 1500);
 
-        // 6️⃣ START GAME POLLING
+        // 7. WAIT FOR GAME START
         startGameCheck();
 
     } catch (err) {
