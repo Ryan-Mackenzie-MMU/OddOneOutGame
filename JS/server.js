@@ -294,6 +294,36 @@ app.get("/game-data/:roomId/:userId", (req, res) => {
   });
 });
 
+app.post("/submit-hint", (req, res) => {
+  const { roomId, userId, hint } = req.body;
+
+  db.query(
+    "UPDATE RoomPlayers SET hint = ? WHERE room_id = ? AND user_id = ?",
+    [hint, roomId, userId],
+    (err) => {
+      if (err) return res.status(500).json(err);
+      res.json({ success: true });
+    }
+  );
+});
+
+app.get("/hints/:roomId", (req, res) => {
+
+  const roomId = req.params.roomId;
+
+  db.query(
+    `SELECT Users.username, RoomPlayers.hint
+     FROM RoomPlayers
+     JOIN Users ON Users.id = RoomPlayers.user_id
+     WHERE RoomPlayers.room_id = ?`,
+    [roomId],
+    (err, results) => {
+      if (err) return res.status(500).json(err);
+      res.json(results);
+    }
+  );
+});
+
 // =============================
 // START SERVER
 // =============================

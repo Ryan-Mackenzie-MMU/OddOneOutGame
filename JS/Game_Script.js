@@ -152,26 +152,47 @@ hintForm.addEventListener("submit", async (e) => {
 
     console.log("HINT SUBMITTED:", hint);
 
-    // 🚀 FUTURE: send to server here
-    /*
-    await fetch("http://localhost:3000/submit-hint", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            roomId,
-            userId,
-            hint
-        })
-    });
-    */
+    try {
+        // ✅ SEND TO SERVER
+        await fetch("http://localhost:3000/submit-hint", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                roomId,
+                userId,
+                hint
+            })
+        });
 
-    // Disable after submit
-    hintInput.disabled = true;
-    hintForm.querySelector("button").disabled = true;
+        // ✅ DISABLE INPUT AFTER SUBMIT
+        hintInput.disabled = true;
+        hintForm.querySelector("button").disabled = true;
 
-    playerTurn.textContent = "Hint submitted!";
+        // ✅ SHOW WAITING MESSAGE
+        playerTurn.textContent = "Waiting for other players...";
+
+        // ✅ START POLLING FOR ALL HINTS
+        const interval = setInterval(async () => {
+
+            try {
+                const done = await checkHintsComplete();
+
+                if (done) {
+                    clearInterval(interval);
+                }
+
+            } catch (err) {
+                console.error("Hint polling error:", err);
+            }
+
+        }, 1000);
+
+    } catch (err) {
+        console.error("Submit hint error:", err);
+        alert("Failed to submit hint");
+    }
 });
 
 // =============================
@@ -202,6 +223,35 @@ setInterval(async () => {
     }
 
 }, 1000);
+
+async function checkHintsComplete() {
+
+    const res = await fetch(`http://localhost:3000/hints/${roomId}`);
+    const data = await res.json();
+
+    // count valid hints
+    const submitted = data.filter(p => p.hint && p.hint.trim() !== "").length;
+
+    if (submitted === data.length) {
+        showAllHints(data);
+        return true;
+    }
+
+    return false;
+}
+
+function showAllHints(players) {
+
+    hintPhase.classList.add("hidden");
+
+    phaseTitle.textContent = "All Hints";
+
+    playerTurn.textContent = "Vote for who you think the impostor is!";
+
+    roleReveal.innerHTML = players.map(p => `
+        <p><strong>${p.username}:</strong> ${p.hint}</p>
+    `).join("");
+}
 
 // =============================
 // INIT
