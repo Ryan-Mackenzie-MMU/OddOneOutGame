@@ -37,7 +37,19 @@ const themes = [
 ];
 
 // =============================
-// LOAD FULL GAME DATA (NEW SERVER ENDPOINT)
+// DOM REFERENCES
+// =============================
+const phaseTitle = document.getElementById("phaseTitle");
+const playerTurn = document.getElementById("playerTurn");
+
+const roleReveal = document.getElementById("roleReveal");
+
+const hintPhase = document.getElementById("hintPhase");
+const hintForm = document.getElementById("hintForm");
+const hintInput = document.getElementById("hint");
+
+// =============================
+// LOAD GAME DATA
 // =============================
 async function loadGameData() {
     try {
@@ -52,10 +64,7 @@ async function loadGameData() {
 
         if (!data) return false;
 
-        // ✅ FROM RoomGame
         themeIndex = data.theme_index;
-
-        // ✅ FROM RoomPlayers
         myRole = data.role;
         secretWord = data.secret_word;
 
@@ -78,12 +87,10 @@ function showRoleScreen() {
     const isImpostor = myRole === "impostor";
     const themeName = themes[themeIndex] || "Unknown Theme";
 
-    const box = document.querySelector(".game-box");
+    phaseTitle.textContent = "Your Role";
+    playerTurn.textContent = username;
 
-    box.innerHTML = `
-        <h1>Your Role</h1>
-        <h2>${username}</h2>
-
+    roleReveal.innerHTML = `
         <h2>
             ${isImpostor ? "You are the IMPOSTOR 😈" : "You are a CIVILIAN 👤"}
         </h2>
@@ -95,13 +102,12 @@ function showRoleScreen() {
         }
 
         <h3>Theme: ${themeName}</h3>
-
         <p>Game starting...</p>
     `;
 
     setTimeout(() => {
         startGame(themeName);
-    }, 40000);
+    }, 4000);
 }
 
 // =============================
@@ -109,19 +115,67 @@ function showRoleScreen() {
 // =============================
 function startGame(themeName) {
 
-    const box = document.querySelector(".game-box");
+    const isImpostor = myRole === "impostor";
 
-    box.innerHTML = `
-        <h1>Game Started</h1>
-        <h2>Theme: ${themeName}</h2>
-        <p>Discuss and find the impostor!</p>
-    `;
+    phaseTitle.textContent = "Game Started";
+    playerTurn.textContent = `Theme: ${themeName}`;
+
+    if (isImpostor) {
+        roleReveal.innerHTML = `
+            <p>You are the IMPOSTOR 😈</p>
+            <p>Give it your best guess!</p>
+        `;
+    } else {
+        roleReveal.innerHTML = `
+            <p>Give a hint related to the word! ${secretWord}</p>
+        `;
+    }
+
+    // SHOW hint input
+    hintPhase.classList.remove("hidden");
 
     console.log("Game started:", themeName);
 }
 
 // =============================
-// POLLING LOOP (SIMPLIFIED + FIXED)
+// HINT SUBMISSION
+// =============================
+hintForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const hint = hintInput.value.trim();
+
+    if (!hint) {
+        alert("Enter a hint");
+        return;
+    }
+
+    console.log("HINT SUBMITTED:", hint);
+
+    // 🚀 FUTURE: send to server here
+    /*
+    await fetch("http://localhost:3000/submit-hint", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            roomId,
+            userId,
+            hint
+        })
+    });
+    */
+
+    // Disable after submit
+    hintInput.disabled = true;
+    hintForm.querySelector("button").disabled = true;
+
+    playerTurn.textContent = "Hint submitted!";
+});
+
+// =============================
+// POLLING LOOP
 // =============================
 setInterval(async () => {
 
