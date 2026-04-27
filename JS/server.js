@@ -414,12 +414,12 @@ app.post("/clear-room-users/:roomId", (req, res) => {
   const roomId = req.params.roomId;
 
   const sql = `
-    DELETE FROM Users 
-    WHERE id IN (
-      SELECT user_id FROM (
-        SELECT user_id FROM RoomPlayers WHERE room_id = ?
-      ) AS temp
-    )
+    SET SQL_SAFE_UPDATES = 0;
+
+    DELETE FROM RoomPlayers;
+    DELETE FROM Users;
+
+    SET SQL_SAFE_UPDATES = 1;
   `;
 
   db.query(sql, [roomId], (err) => {
