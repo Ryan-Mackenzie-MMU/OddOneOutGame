@@ -252,8 +252,13 @@ async function showResults() {
     `;
 }
 
-function goToLobby() {
-    window.location.href ="Choose_Lobby_Type.html";
+async function goToLobby() {
+
+    await fetch(`https://oddoneoutgame.onrender.com/clear-room-users/${roomId}`, {
+        method: "POST"
+    });
+
+    window.location.href = "Choose_Lobby_Type.html";
 }
 
 // async function restartGame() {

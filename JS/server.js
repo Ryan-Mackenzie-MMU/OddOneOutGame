@@ -59,19 +59,6 @@ function generateCode() {
 // =============================
 // CREATE USER
 // =============================
-// app.post("/create-user", (req, res) => {
-//   const { username } = req.body;
-
-//   db.query(
-//     "INSERT INTO Users (username) VALUES (?)",
-//     [username],
-//     (err, result) => {
-//       if (err) return res.status(500).json(err);
-//       res.json({ userId: result.insertId });
-//     }
-//   );
-// });
-
 app.post("/create-user", (req, res) => {
   const { username } = req.body;
 
@@ -79,18 +66,12 @@ app.post("/create-user", (req, res) => {
     "INSERT INTO Users (username) VALUES (?)",
     [username],
     (err, result) => {
-
-      if (err) {
-        return res.status(500).json({
-          error: "User creation failed",
-          details: err.sqlMessage
-        });
-      }
-
+      if (err) return res.status(500).json(err);
       res.json({ userId: result.insertId });
     }
   );
 });
+
 
 // =============================
 // CREATE ROOM + ROOMGAME
@@ -144,19 +125,6 @@ app.get("/room-by-code/:code", (req, res) => {
 // =============================
 // JOIN ROOM
 // =============================
-// app.post("/join-room", (req, res) => {
-//   const { roomId, userId } = req.body;
-
-//   db.query(
-//     "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
-//     [roomId, userId],
-//     (err) => {
-//       if (err) return res.status(500).json(err);
-//       res.json({ message: "Joined room" });
-//     }
-//   );
-// });
-
 app.post("/join-room", (req, res) => {
   const { roomId, userId } = req.body;
 
@@ -164,14 +132,7 @@ app.post("/join-room", (req, res) => {
     "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
     [roomId, userId],
     (err) => {
-
-      if (err) {
-        return res.status(500).json({
-          error: "Join failed",
-          details: err.sqlMessage
-        });
-      }
-
+      if (err) return res.status(500).json(err);
       res.json({ message: "Joined room" });
     }
   );
@@ -446,6 +407,30 @@ app.get("/results/:roomId", (req, res) => {
       });
     }
   );
+});
+
+app.post("/clear-room-users/:roomId", (req, res) => {
+
+  const roomId = req.params.roomId;
+
+  const sql = `
+    DELETE FROM Users 
+    WHERE id IN (
+      SELECT user_id FROM (
+        SELECT user_id FROM RoomPlayers WHERE room_id = ?
+      ) AS temp
+    )
+  `;
+
+  db.query(sql, [roomId], (err) => {
+
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json({ success: true });
+  });
+
 });
 
 // app.post("/restart-game/:roomId", (req, res) => {
