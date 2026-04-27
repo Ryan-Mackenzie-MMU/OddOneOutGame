@@ -124,15 +124,39 @@ app.get("/room-by-code/:code", (req, res) => {
 // =============================
 // JOIN ROOM
 // =============================
+// app.post("/join-room", (req, res) => {
+//   const { roomId, userId } = req.body;
+
+//   db.query(
+//     "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
+//     [roomId, userId],
+//     (err) => {
+//       if (err) return res.status(500).json(err);
+//       res.json({ message: "Joined room" });
+//     }
+//   );
+// });
+
 app.post("/join-room", (req, res) => {
   const { roomId, userId } = req.body;
 
   db.query(
-    "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
+    "SELECT * FROM RoomPlayers WHERE room_id = ? AND user_id = ?",
     [roomId, userId],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: "Joined room" });
+    (err, results) => {
+
+      if (results.length > 0) {
+        return res.json({ message: "Already joined" });
+      }
+
+      db.query(
+        "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
+        [roomId, userId],
+        (err2) => {
+          if (err2) return res.status(500).json(err2);
+          res.json({ message: "Joined room" });
+        }
+      );
     }
   );
 });
