@@ -41,7 +41,6 @@ const themes = [
 // =============================
 const phaseTitle = document.getElementById("phaseTitle");
 const playerTurn = document.getElementById("playerTurn");
-
 const roleReveal = document.getElementById("roleReveal");
 
 const hintPhase = document.getElementById("hintPhase");
@@ -60,8 +59,6 @@ async function loadGameData() {
 
         const data = await res.json();
 
-        console.log("GAME DATA:", data);
-
         if (!data) return false;
 
         themeIndex = data.theme_index;
@@ -71,7 +68,7 @@ async function loadGameData() {
         return true;
 
     } catch (err) {
-        console.error("Game data error:", err);
+        console.error(err);
         return false;
     }
 }
@@ -91,27 +88,20 @@ function showRoleScreen() {
     playerTurn.textContent = username;
 
     roleReveal.innerHTML = `
-        <h2>
-            ${isImpostor ? "You are the IMPOSTOR 😈" : "You are a CIVILIAN 👤"}
-        </h2>
-
-        ${
-            isImpostor
-                ? `<p>You have no word. Blend in!</p>`
-                : `<p><strong>Your Word:</strong> ${secretWord}</p>`
+        <h2>${isImpostor ? "You are the IMPOSTOR 😈" : "You are a CIVILIAN 👤"}</h2>
+        ${isImpostor
+            ? `<p>You have no word. Blend in!</p>`
+            : `<p><strong>Your Word:</strong> ${secretWord}</p>`
         }
-
         <h3>Theme: ${themeName}</h3>
         <p>Game starting...</p>
     `;
 
-    setTimeout(() => {
-        startGame(themeName);
-    }, 4000);
+    setTimeout(() => startGame(themeName), 3000);
 }
 
 // =============================
-// START GAME PHASE
+// START GAME
 // =============================
 function startGame(themeName) {
 
@@ -120,116 +110,47 @@ function startGame(themeName) {
     phaseTitle.textContent = "Game Started";
     playerTurn.textContent = `Theme: ${themeName}`;
 
-    if (isImpostor) {
-        roleReveal.innerHTML = `
-            <p>You are the IMPOSTOR 😈</p>
-            <p>Give it your best guess!</p>
-        `;
-    } else {
-        roleReveal.innerHTML = `
-            <p>Give a hint related to the word! ${secretWord}</p>
-        `;
-    }
+    roleReveal.innerHTML = isImpostor
+        ? `<p>You are the IMPOSTOR 😈</p><p>Blend in and guess!</p>`
+        : `<p>Give a hint for your word: <strong>${secretWord}</strong></p>`;
 
-    // SHOW hint input
     hintPhase.classList.remove("hidden");
-
-    console.log("Game started:", themeName);
 }
 
 // =============================
-// HINT SUBMISSION
+// SUBMIT HINT
 // =============================
 hintForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const hint = hintInput.value.trim();
+    if (!hint) return alert("Enter a hint");
 
-    if (!hint) {
-        alert("Enter a hint");
-        return;
-    }
+    await fetch("http://localhost:3000/submit-hint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, userId, hint })
+    });
 
-    console.log("HINT SUBMITTED:", hint);
+    hintInput.disabled = true;
+    hintForm.querySelector("button").disabled = true;
 
-    try {
-        // ✅ SEND TO SERVER
-        await fetch("http://localhost:3000/submit-hint", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                roomId,
-                userId,
-                hint
-            })
-        });
+    playerTurn.textContent = "Waiting for other players...";
 
-        // ✅ DISABLE INPUT AFTER SUBMIT
-        hintInput.disabled = true;
-        hintForm.querySelector("button").disabled = true;
-
-        // ✅ SHOW WAITING MESSAGE
-        playerTurn.textContent = "Waiting for other players...";
-
-        // ✅ START POLLING FOR ALL HINTS
-        const interval = setInterval(async () => {
-
-            try {
-                const done = await checkHintsComplete();
-
-                if (done) {
-                    clearInterval(interval);
-                }
-
-            } catch (err) {
-                console.error("Hint polling error:", err);
-            }
-
-        }, 1000);
-
-    } catch (err) {
-        console.error("Submit hint error:", err);
-        alert("Failed to submit hint");
-    }
+    const interval = setInterval(async () => {
+        const done = await checkHintsComplete();
+        if (done) clearInterval(interval);
+    }, 1000);
 });
 
 // =============================
-// POLLING LOOP
+// CHECK HINTS
 // =============================
-setInterval(async () => {
-
-    if (gameStarted) return;
-
-    try {
-        const res = await fetch(
-            `http://localhost:3000/room-game/${roomId}`,
-            { cache: "no-store" }
-        );
-
-        const roomGame = await res.json();
-
-        if (!roomGame || roomGame.started !== 1) return;
-
-        const ok = await loadGameData();
-        if (!ok) return;
-
-        gameStarted = true;
-        showRoleScreen();
-
-    } catch (err) {
-        console.error("Polling error:", err);
-    }
-
-}, 1000);
-
 async function checkHintsComplete() {
 
     const res = await fetch(`http://localhost:3000/hints/${roomId}`);
     const data = await res.json();
 
-    // count valid hints
     const submitted = data.filter(p => p.hint && p.hint.trim() !== "").length;
 
     if (submitted === data.length) {
@@ -240,20 +161,191 @@ async function checkHintsComplete() {
     return false;
 }
 
+// =============================
+// SHOW HINTS + VOTING
+// =============================
 function showAllHints(players) {
 
     hintPhase.classList.add("hidden");
 
     phaseTitle.textContent = "All Hints";
-
-    playerTurn.textContent = "Vote for who you think the impostor is!";
+    playerTurn.textContent = "Vote for the impostor";
 
     roleReveal.innerHTML = players.map(p => `
         <p><strong>${p.username}:</strong> ${p.hint}</p>
     `).join("");
+
+    showVoting(players);
 }
 
 // =============================
-// INIT
+// VOTING UI
+// =============================
+function showVoting(players) {
+
+    roleReveal.innerHTML += `
+        <h3>Vote:</h3>
+        ${players.map(p => `
+            <button onclick="submitVote(${p.user_id})">
+                ${p.username}
+            </button>
+        `).join("<br>")}
+    `;
+}
+
+// =============================
+// SUBMIT VOTE
+// =============================
+async function submitVote(voteFor) {
+
+    await fetch("http://localhost:3000/submit-vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId, userId, voteFor })
+    });
+
+    playerTurn.textContent = "Waiting for votes...";
+
+    const interval = setInterval(async () => {
+        const done = await checkVotesComplete();
+        if (done) clearInterval(interval);
+    }, 1000);
+}
+
+// =============================
+// CHECK VOTES
+// =============================
+async function checkVotesComplete() {
+
+    const res = await fetch(`http://localhost:3000/votes/${roomId}`);
+    const data = await res.json();
+
+    const submitted = data.filter(v => v.vote_for !== null).length;
+
+    if (submitted === data.length) {
+        showResults();
+        return true;
+    }
+
+    return false;
+}
+
+// =============================
+// RESULTS (UPDATED FOR NAMES)
+// =============================
+async function showResults() {
+
+    const res = await fetch(`http://localhost:3000/results/${roomId}`);
+    const data = await res.json();
+
+    phaseTitle.textContent = "Results";
+
+    roleReveal.innerHTML = `
+        <p><strong>Voted Out:</strong> ${data.votedOutName}</p>
+        <p><strong>Impostor:</strong> ${data.impostorName}</p>
+
+        <h2>${data.civiliansWin ? "Civilians Win 🎉" : "Impostor Wins 😈"}</h2>
+
+        <div style="margin-top:20px;">
+            <button onclick="goToLobby()">Back to Lobby</button>
+        </div>
+    `;
+}
+
+function goToLobby() {
+    window.location.href ="Choose_Lobby_Type.html";
+}
+
+// async function restartGame() {
+
+//     try {
+//         // request restart
+//         await fetch(`http://localhost:3000/restart-game/${roomId}`, {
+//             method: "POST"
+//         });
+
+//         // 2. reset frontend ONLY
+//         gameStarted = false;
+//         roleShown = false;
+//         myRole = null;
+//         secretWord = null;
+//         themeIndex = null;
+
+//         phaseTitle.textContent = "Restarting...";
+//         roleReveal.innerHTML = "Waiting for players...";
+
+//         hintInput.disabled = false;
+//         hintInput.value = "";
+//         hintForm.querySelector("button").disabled = false;
+
+//     } catch (err) {
+//         console.error(err);
+//     }
+// }
+
+// =============================
+// POLLING START
+// =============================
+setInterval(async () => {
+
+    try {
+        const res = await fetch(`http://localhost:3000/room-game/${roomId}`);
+        const game = await res.json();
+
+        if (!game) return;
+
+        // =============================
+        // RESTART SYNC
+        // =============================
+        // if (game.restart_flag === 1) {
+
+        //     console.log("RESTART DETECTED");
+
+        //     // Reset frontend state FIRST
+        //     gameStarted = false;
+        //     roleShown = false;
+        //     myRole = null;
+        //     secretWord = null;
+        //     themeIndex = null;
+
+        //     // Reset UI
+        //     phaseTitle.textContent = "Restarting...";
+        //     roleReveal.innerHTML = "Waiting for new game...";
+
+        //     hintInput.disabled = false;
+        //     hintInput.value = "";
+        //     hintForm.querySelector("button").disabled = false;
+
+        //     try {
+        //         // Only ONE trigger needed (safe even if multiple clients call)
+        //         await fetch(`http://localhost:3000/force-start/${roomId}`, {
+        //             method: "POST"
+        //         });
+        //     } catch (err) {
+        //         console.error("Force start failed:", err);
+        //     }
+
+        //     return; // stop loop here
+        // }
+
+        // =============================
+        // NORMAL GAME START FLOW
+        // =============================
+        if (gameStarted) return;
+
+        if (game.started !== 1) return;
+
+        const ok = await loadGameData();
+        if (!ok) return;
+
+        gameStarted = true;
+        showRoleScreen();
+
+    } catch (err) {
+        console.error(err);
+    }
+
+}, 1000);
+
 // =============================
 console.log("Game waiting for start...");

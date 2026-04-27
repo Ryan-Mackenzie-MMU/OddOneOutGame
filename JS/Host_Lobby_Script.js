@@ -168,8 +168,7 @@ startGameBtn.addEventListener("click", async () => {
         method: "POST"
     });
 
-    location.href =
-        `../HTML/Game.html?roomId=${roomId}&userId=${hostUserId}&username=${encodeURIComponent(hostUsername)}`;
+    location.href = `../HTML/Game.html?roomId=${roomId}&userId=${hostUserId}&username=${encodeURIComponent(hostUsername)}`;
 });
 
 

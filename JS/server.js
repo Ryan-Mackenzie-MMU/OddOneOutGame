@@ -312,7 +312,7 @@ app.get("/hints/:roomId", (req, res) => {
   const roomId = req.params.roomId;
 
   db.query(
-    `SELECT Users.username, RoomPlayers.hint
+    `SELECT Users.username, RoomPlayers.hint, RoomPlayers.user_id
      FROM RoomPlayers
      JOIN Users ON Users.id = RoomPlayers.user_id
      WHERE RoomPlayers.room_id = ?`,
@@ -323,6 +323,205 @@ app.get("/hints/:roomId", (req, res) => {
     }
   );
 });
+
+// =============================
+// VOTING
+// =============================
+app.post("/submit-vote", (req, res) => {
+  const { roomId, userId, voteFor } = req.body;
+
+  db.query(
+    "UPDATE RoomPlayers SET vote_for = ? WHERE room_id = ? AND user_id = ?",
+    [voteFor, roomId, userId],
+    (err) => {
+      if (err) return res.status(500).json(err);
+      res.json({ success: true });
+    }
+  );
+});
+
+app.get("/votes/:roomId", (req, res) => {
+  db.query(
+    `SELECT user_id, vote_for FROM RoomPlayers WHERE room_id = ?`,
+    [req.params.roomId],
+    (err, results) => {
+      if (err) return res.status(500).json(err);
+      res.json(results);
+    }
+  );
+});
+
+// =============================
+// RESULTS
+// =============================
+app.get("/results/:roomId", (req, res) => {
+  db.query(
+    `SELECT rp.user_id, rp.role, rp.vote_for, u.username
+     FROM RoomPlayers rp
+     JOIN Users u ON u.id = rp.user_id
+     WHERE rp.room_id = ?`,
+    [req.params.roomId],
+    (err, players) => {
+      if (err) return res.status(500).json(err);
+
+      const voteCount = {};
+
+      // Count votes
+      players.forEach(p => {
+        if (!p.vote_for) return;
+        voteCount[p.vote_for] = (voteCount[p.vote_for] || 0) + 1;
+      });
+
+      let maxVotes = 0;
+      let votedOut = null;
+
+      // Find most voted player
+      for (let id in voteCount) {
+        if (voteCount[id] > maxVotes) {
+          maxVotes = voteCount[id];
+          votedOut = parseInt(id);
+        }
+      }
+
+      // Find impostor
+      const impostor = players.find(p => p.role === "impostor");
+
+      // Find eliminated player (to check win condition)
+      const eliminated = players.find(p => p.user_id === votedOut);
+
+      const civiliansWin = eliminated && eliminated.role === "impostor";
+
+      // 🔥 MAP IDs → NAMES
+      const playerMap = {};
+      players.forEach(p => {
+        playerMap[p.user_id] = p.username;
+      });
+
+      res.json({
+        votedOut,
+        votedOutName: playerMap[votedOut] || "Unknown",
+        impostor: impostor ? impostor.user_id : null,
+        impostorName: impostor ? playerMap[impostor.user_id] : "Unknown",
+        civiliansWin
+      });
+    }
+  );
+});
+
+// app.post("/restart-game/:roomId", (req, res) => {
+
+//   const roomId = req.params.roomId;
+
+//   // 1. signal restart
+//   db.query(
+//     `UPDATE RoomGame 
+//      SET started = 0, restart_flag = 1 
+//      WHERE room_id = ?`,
+//     [roomId],
+//     (err) => {
+
+//       if (err) return res.status(500).json(err);
+
+//       // 2. reset player state
+//       db.query(
+//         `UPDATE RoomPlayers 
+//          SET role = NULL, 
+//              secret_word = NULL, 
+//              hint = NULL, 
+//              vote_for = NULL
+//          WHERE room_id = ?`,
+//         [roomId],
+//         (err2) => {
+
+//           if (err2) return res.status(500).json(err2);
+
+//           res.json({
+//             success: true,
+//             message: "Restart flagged"
+//           });
+//         }
+//       );
+//     }
+//   );
+// });
+
+// app.post("/force-start/:roomId", (req, res) => {
+
+//   const roomId = req.params.roomId;
+
+//   db.query(
+//     "SELECT user_id FROM RoomPlayers WHERE room_id = ?",
+//     [roomId],
+//     (err, players) => {
+
+//       if (err) return res.status(500).json(err);
+//       if (!players.length) return res.status(400).json({ error: "No players" });
+
+//       const impostorIndex = Math.floor(Math.random() * players.length);
+
+//       // 1. NEW RANDOM THEME EVERY GAME
+//       const newThemeIndex = Math.floor(Math.random() * words.length);
+
+//       // 2. PICK NEW WORD
+//       const sharedWord =
+//         words[newThemeIndex][
+//           Math.floor(Math.random() * words[newThemeIndex].length)
+//         ];
+
+//       // 3. SAVE NEW THEME FIRST
+//       db.query(
+//         `UPDATE RoomGame SET theme_index = ? WHERE room_id = ?`,
+//         [newThemeIndex, roomId],
+//         (err2) => {
+
+//           if (err2) return res.status(500).json(err2);
+
+//           let done = 0;
+
+//           players.forEach((p, i) => {
+
+//             const isImpostor = i === impostorIndex;
+//             const role = isImpostor ? "impostor" : "civilian";
+//             const word = isImpostor ? null : sharedWord;
+
+//             db.query(
+//               `UPDATE RoomPlayers 
+//                SET role = ?, secret_word = ?, hint = NULL, vote_for = NULL
+//                WHERE room_id = ? AND user_id = ?`,
+//               [role, word, roomId, p.user_id],
+//               (err3) => {
+
+//                 if (err3) console.error(err3);
+
+//                 done++;
+
+//                 if (done === players.length) {
+
+//                   // 4. START GAME + CLEAR FLAG
+//                   db.query(
+//                     `UPDATE RoomGame 
+//                      SET started = 1, restart_flag = 0 
+//                      WHERE room_id = ?`,
+//                     [roomId],
+//                     (err4) => {
+
+//                       if (err4) return res.status(500).json(err4);
+
+//                       res.json({
+//                         success: true,
+//                         message: "Game started with new theme"
+//                       });
+//                     }
+//                   );
+//                 }
+//               }
+//             );
+//           });
+//         }
+//       );
+//     }
+//   );
+// });
 
 // =============================
 // START SERVER
