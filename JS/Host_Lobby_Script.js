@@ -52,7 +52,7 @@ function lockHostInput() {
 async function createRoom() {
     try {
 
-        const res = await fetch("http://localhost:3000/create-room", {
+        const res = await fetch("https://oddoneoutgame.onrender.com/create-room", {
             method: "POST",
             headers: { "Content-Type": "application/json" }
         });
@@ -81,7 +81,7 @@ async function loadPlayers() {
     if (!roomId) return;
 
     try {
-        const res = await fetch(`http://localhost:3000/room-players/${roomId}`, {
+        const res = await fetch(`https://oddoneoutgame.onrender.com/room-players/${roomId}`, {
             cache: "no-store"
         });
 
@@ -122,7 +122,7 @@ addPlayerBtn.addEventListener("click", async () => {
         return;
     }
 
-    const userRes = await fetch("http://localhost:3000/create-user", {
+    const userRes = await fetch("https://oddoneoutgame.onrender.com/create-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: newPlayer })
@@ -130,7 +130,7 @@ addPlayerBtn.addEventListener("click", async () => {
 
     const userData = await userRes.json();
 
-    await fetch("http://localhost:3000/join-room", {
+    await fetch("https://oddoneoutgame.onrender.com/join-room", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -156,7 +156,7 @@ addPlayerBtn.addEventListener("click", async () => {
 // =============================
 startGameBtn.addEventListener("click", async () => {
 
-    const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
+    const res = await fetch(`https://oddoneoutgame.onrender.com/room-players/${roomId}`);
     const players = await res.json();
 
     if (!Array.isArray(players) || players.length < 3) {
@@ -164,7 +164,7 @@ startGameBtn.addEventListener("click", async () => {
         return;
     }
 
-    await fetch(`http://localhost:3000/start-game/${roomId}`, {
+    await fetch(`https://oddoneoutgame.onrender.com/start-game/${roomId}`, {
         method: "POST"
     });
 

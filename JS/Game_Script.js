@@ -53,7 +53,7 @@ const hintInput = document.getElementById("hint");
 async function loadGameData() {
     try {
         const res = await fetch(
-            `http://localhost:3000/game-data/${roomId}/${userId}`,
+            `https://oddoneoutgame.onrender.com/game-data/${roomId}/${userId}`,
             { cache: "no-store" }
         );
 
@@ -126,7 +126,7 @@ hintForm.addEventListener("submit", async (e) => {
     const hint = hintInput.value.trim();
     if (!hint) return alert("Enter a hint");
 
-    await fetch("http://localhost:3000/submit-hint", {
+    await fetch("https://oddoneoutgame.onrender.com/submit-hint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, userId, hint })
@@ -148,7 +148,7 @@ hintForm.addEventListener("submit", async (e) => {
 // =============================
 async function checkHintsComplete() {
 
-    const res = await fetch(`http://localhost:3000/hints/${roomId}`);
+    const res = await fetch(`https://oddoneoutgame.onrender.com/hints/${roomId}`);
     const data = await res.json();
 
     const submitted = data.filter(p => p.hint && p.hint.trim() !== "").length;
@@ -198,7 +198,7 @@ function showVoting(players) {
 // =============================
 async function submitVote(voteFor) {
 
-    await fetch("http://localhost:3000/submit-vote", {
+    await fetch("https://oddoneoutgame.onrender.com/submit-vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, userId, voteFor })
@@ -217,7 +217,7 @@ async function submitVote(voteFor) {
 // =============================
 async function checkVotesComplete() {
 
-    const res = await fetch(`http://localhost:3000/votes/${roomId}`);
+    const res = await fetch(`https://oddoneoutgame.onrender.com/votes/${roomId}`);
     const data = await res.json();
 
     const submitted = data.filter(v => v.vote_for !== null).length;
@@ -235,7 +235,7 @@ async function checkVotesComplete() {
 // =============================
 async function showResults() {
 
-    const res = await fetch(`http://localhost:3000/results/${roomId}`);
+    const res = await fetch(`https://oddoneoutgame.onrender.com/results/${roomId}`);
     const data = await res.json();
 
     phaseTitle.textContent = "Results";
@@ -289,7 +289,7 @@ function goToLobby() {
 setInterval(async () => {
 
     try {
-        const res = await fetch(`http://localhost:3000/room-game/${roomId}`);
+        const res = await fetch(`https://oddoneoutgame.onrender.com/room-game/${roomId}`);
         const game = await res.json();
 
         if (!game) return;

@@ -27,7 +27,7 @@ async function loadPlayers() {
     if (!roomId) return;
 
     try {
-        const res = await fetch(`http://localhost:3000/room-players/${roomId}`);
+        const res = await fetch(`https://oddoneoutgame.onrender.com/room-players/${roomId}`);
         const players = await res.json();
 
         playersJoinedDiv.innerHTML = "";
@@ -67,7 +67,7 @@ function startGameCheck() {
         if (!roomId) return;
 
         try {
-            const res = await fetch(`http://localhost:3000/room-game/${roomId}`);
+            const res = await fetch(`https://oddoneoutgame.onrender.com/room-game/${roomId}`);
             const roomGame = await res.json();
 
             // IMPORTANT: match DB column exactly
@@ -102,7 +102,7 @@ joinBtn.addEventListener("click", async () => {
 
     try {
         // 1. FIND ROOM
-        const roomRes = await fetch(`http://localhost:3000/room-by-code/${roomCode}`);
+        const roomRes = await fetch(`https://oddoneoutgame.onrender.com/room-by-code/${roomCode}`);
         const room = await roomRes.json();
 
         if (!room || !room.id) {
@@ -113,7 +113,7 @@ joinBtn.addEventListener("click", async () => {
         roomId = room.id;
 
         // 2. CREATE USER
-        const userRes = await fetch("http://localhost:3000/create-user", {
+        const userRes = await fetch("https://oddoneoutgame.onrender.com/create-user", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username })
@@ -128,7 +128,7 @@ joinBtn.addEventListener("click", async () => {
         }
 
         // 3. JOIN ROOM
-        await fetch("http://localhost:3000/join-room", {
+        await fetch("https://oddoneoutgame.onrender.com/join-room", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ roomId, userId })
