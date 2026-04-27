@@ -59,6 +59,19 @@ function generateCode() {
 // =============================
 // CREATE USER
 // =============================
+// app.post("/create-user", (req, res) => {
+//   const { username } = req.body;
+
+//   db.query(
+//     "INSERT INTO Users (username) VALUES (?)",
+//     [username],
+//     (err, result) => {
+//       if (err) return res.status(500).json(err);
+//       res.json({ userId: result.insertId });
+//     }
+//   );
+// });
+
 app.post("/create-user", (req, res) => {
   const { username } = req.body;
 
@@ -66,7 +79,14 @@ app.post("/create-user", (req, res) => {
     "INSERT INTO Users (username) VALUES (?)",
     [username],
     (err, result) => {
-      if (err) return res.status(500).json(err);
+
+      if (err) {
+        return res.status(500).json({
+          error: "User creation failed",
+          details: err.sqlMessage
+        });
+      }
+
       res.json({ userId: result.insertId });
     }
   );
@@ -141,22 +161,18 @@ app.post("/join-room", (req, res) => {
   const { roomId, userId } = req.body;
 
   db.query(
-    "SELECT * FROM RoomPlayers WHERE room_id = ? AND user_id = ?",
+    "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
     [roomId, userId],
-    (err, results) => {
+    (err) => {
 
-      if (results.length > 0) {
-        return res.json({ message: "Already joined" });
+      if (err) {
+        return res.status(500).json({
+          error: "Join failed",
+          details: err.sqlMessage
+        });
       }
 
-      db.query(
-        "INSERT INTO RoomPlayers (room_id, user_id) VALUES (?, ?)",
-        [roomId, userId],
-        (err2) => {
-          if (err2) return res.status(500).json(err2);
-          res.json({ message: "Joined room" });
-        }
-      );
+      res.json({ message: "Joined room" });
     }
   );
 });
