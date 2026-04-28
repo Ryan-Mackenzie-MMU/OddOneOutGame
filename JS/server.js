@@ -410,7 +410,7 @@ app.get("/results/:roomId", (req, res) => {
 });
 
 app.post("/clear-all", (req, res) => {
-  db.query("SET SQL_SAFE_UPDATES = 0", (err) => {
+  db.query("SET FOREIGN_KEY_CHECKS = 0", (err) => {
     if (err) return res.status(500).json(err);
 
     db.query("TRUNCATE TABLE RoomPlayers", (err2) => {
@@ -419,7 +419,7 @@ app.post("/clear-all", (req, res) => {
       db.query("TRUNCATE TABLE Users", (err3) => {
         if (err3) return res.status(500).json(err3);
 
-        db.query("SET SQL_SAFE_UPDATES = 1", (err4) => {
+        db.query("SET FOREIGN_KEY_CHECKS = 1", (err4) => {
           if (err4) return res.status(500).json(err4);
 
           res.json({ success: true });
