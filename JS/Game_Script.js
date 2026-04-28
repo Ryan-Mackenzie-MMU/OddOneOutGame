@@ -253,12 +253,20 @@ async function showResults() {
 }
 
 async function goToLobby() {
-
-    await fetch(`https://oddoneoutgame.onrender.com/clear-room-users/${roomId}`, {
-        method: "POST"
+  try {
+    const res = await fetch("https://oddoneoutgame.onrender.com/clear-all", {
+      method: "POST"
     });
 
+    if (!res.ok) {
+      console.error("Failed to clear data");
+      return;
+    }
+
     window.location.href = "Choose_Lobby_Type.html";
+  } catch (err) {
+    console.error("Request error:", err);
+  }
 }
 
 // async function restartGame() {

@@ -409,28 +409,24 @@ app.get("/results/:roomId", (req, res) => {
   );
 });
 
-app.post("/clear-room-users/:roomId", (req, res) => {
+app.post("/clear-all", (req, res) => {
+  db.query("SET SQL_SAFE_UPDATES = 0", (err) => {
+    if (err) return res.status(500).json(err);
 
-  const roomId = req.params.roomId;
+    db.query("TRUNCATE TABLE RoomPlayers", (err2) => {
+      if (err2) return res.status(500).json(err2);
 
-  const sql = `
-    SET SQL_SAFE_UPDATES = 0;
+      db.query("TRUNCATE TABLE Users", (err3) => {
+        if (err3) return res.status(500).json(err3);
 
-    DELETE FROM RoomPlayers;
-    DELETE FROM Users;
+        db.query("SET SQL_SAFE_UPDATES = 1", (err4) => {
+          if (err4) return res.status(500).json(err4);
 
-    SET SQL_SAFE_UPDATES = 1;
-  `;
-
-  db.query(sql, [roomId], (err) => {
-
-    if (err) {
-      return res.status(500).json(err);
-    }
-
-    res.json({ success: true });
+          res.json({ success: true });
+        });
+      });
+    });
   });
-
 });
 
 // app.post("/restart-game/:roomId", (req, res) => {
